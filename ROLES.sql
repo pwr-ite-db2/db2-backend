@@ -1,6 +1,7 @@
 ---------------------------------------------------------------------------
 --                        create roles in the db
 ---------------------------------------------------------------------------
+DROP ROLE administrator, employee, reader;
 
 -- create admin role
 -- not the same as superuser
@@ -60,7 +61,7 @@ GRANT INSERT, SELECT, UPDATE, DELETE ON styles TO employee;
 GRANT SELECT ON styles TO reader;
 
 
--- grant all privileges to admin
+-- grant all privileges to admin (includes all the views)
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO administrator;
 
 ---------------------------------------------------------------------------
@@ -74,4 +75,14 @@ GRANT EXECUTE ON FUNCTION wyszukaj_artykul_tytul(varchar) TO employee, reader;
 GRANT EXECUTE ON PROCEDURE zamiesc_komentarz(integer, varchar, integer) TO employee, reader;
 GRANT EXECUTE ON PROCEDURE zarejestruj_czytelnika(varchar, varchar, varchar) TO reader;
 
+GRANT EXECUTE ON FUNCTION change_status_trigger() TO employee;
+
 GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA public TO administrator;
+GRANT EXECUTE ON ALL PROCEDURES IN SCHEMA  public TO administrator;
+
+---------------------------------------------------------------------------
+--           specify privileges on views for all roles in the db
+---------------------------------------------------------------------------
+GRANT SELECT ON articles_in_making TO employee;
+GRANT SELECT ON articles_in_edit TO employee;
+GRANT SELECT ON articles_waiting_for_edit TO employee;
