@@ -1,17 +1,15 @@
 package com.example.databasedemo2.businesslogic.services;
 
-import com.example.databasedemo2.dataaccess.repositories.BaseRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
-import java.util.Optional;
-
 
 @Transactional
 public abstract class BaseService <T, ID> {
-    private final BaseRepository<T, ID> repository;
+    private final JpaRepository<T, ID> repository;
 
-    public BaseService(BaseRepository<T, ID> repository) {
+    public BaseService(JpaRepository<T, ID> repository) {
         this.repository = repository;
     }
 
@@ -23,12 +21,15 @@ public abstract class BaseService <T, ID> {
         return repository.findAll();
     }
 
-    public Optional<T> getById(ID id) {
-        return repository.findById(id);
+    public T getById(ID id) {
+        return repository.findById(id).get();
     }
 
     public boolean deleteById(ID id) {
         repository.deleteById(id);
         return true;
     }
+
+    // error handling (TODO)
+    protected abstract void handle();
 }

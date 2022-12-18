@@ -20,7 +20,6 @@ public class ArticleStatus {
     private String name;
 
     @OneToMany(mappedBy = "articleStatus")
-//    @JsonManagedReference("status-article")
     @JsonIgnore
     @ToString.Exclude
     @EqualsAndHashCode.Exclude

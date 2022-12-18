@@ -27,7 +27,7 @@ public class RoleController {
 
     @GetMapping("/{id}")
     public Role getRoleById(@PathVariable("id") int roleId) {
-        return roleService.getById(roleId).get();
+        return roleService.getById(roleId);
     }
 
     @DeleteMapping("/{id}")

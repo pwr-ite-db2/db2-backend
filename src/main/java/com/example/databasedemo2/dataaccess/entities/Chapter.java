@@ -19,8 +19,6 @@ public class Chapter {
 
     @ManyToOne()
     @JoinColumn (name = "article_id", referencedColumnName = "id")
-//    @JsonIgnore
-//    @JsonBackReference("article-chapter")
     private Article article;
 
     private String subtitle;
@@ -28,22 +26,4 @@ public class Chapter {
     private String text;
 
     private int orderNum;
-
-    public Chapter(int articleId, String subtitle, String text, int orderNum) {
-        this.article = Article.builder().id(articleId).build();
-        this.subtitle = subtitle;
-        this.text = text;
-        this.orderNum = orderNum;
-    }
-
-    @Override
-    public String toString() {
-        return "Chapter{" +
-                "id=" + id +
-                ", article id=" + article.getId() +
-                ", subtitle='" + subtitle + '\'' +
-                ", text='" + text + '\'' +
-                ", order=" + orderNum +
-                '}';
-    }
 }

@@ -19,21 +19,21 @@ public class TagController {
 
     @GetMapping
     public List<Tag> getTags() {
-        return tagService.getAllTags();
+        return tagService.getAll();
     }
 
     @PutMapping
     public Tag createOrUpdateTag(@RequestBody Tag tag) {
-        return tagService.addOrUpdateTag(tag);
+        return tagService.addOrUpdate(tag);
     }
 
     @GetMapping("/{id}")
     public Tag getTagById(@PathVariable("id") int tagId) {
-        return tagService.getTagById(tagId);
+        return tagService.getById(tagId);
     }
 
     @DeleteMapping("/{id}")
     public boolean deleteTagById(@PathVariable("id") int tagId) {
-        return tagService.deleteTagById(tagId);
+        return tagService.deleteById(tagId);
     }
 }

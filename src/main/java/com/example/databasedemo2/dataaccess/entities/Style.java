@@ -25,7 +25,6 @@ public class Style {
 
     @OneToMany(mappedBy = "style")
     @JsonIgnore
-//    @JsonManagedReference("style-article")
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private List<Article> articlesWithStyle;

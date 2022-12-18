@@ -24,30 +24,18 @@ public class Comment {
     @ManyToOne()
     @JoinColumn (name = "article_id", referencedColumnName = "id")
     @JsonIgnore
-//    @JsonBackReference("article-comment")
     private Article article;
 
     @OneToOne()
     @JoinColumn (name = "comment_id", referencedColumnName = "id")
     @JsonIgnore
-//    @JsonBackReference("comment-comment")
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private Comment responseTo;
 
     @ManyToOne()
     @JoinColumn (name = "user_id", referencedColumnName = "id")
-//    @JsonBackReference("user-comment")
     private User user;
 
     private String text;
-
-    public Comment(Date created_at, Date updated_at, int articleId, int commentId, int userId, String text) {
-        this.created_at = created_at;
-        this.updated_at = updated_at;
-        this.article = Article.builder().id(articleId).build();
-        this.responseTo = Comment.builder().id(commentId).build();
-        this.user = User.builder().id(userId).build();
-        this.text = text;
-    }
 }

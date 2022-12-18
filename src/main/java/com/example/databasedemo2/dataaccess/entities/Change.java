@@ -27,26 +27,13 @@ public class Change {
 
     @ManyToOne
     @JoinColumn (name = "article_id", referencedColumnName = "id")
-//    @JsonBackReference("article-change")
     private Article article;
 
     @ManyToOne
     @JoinColumn (name = "user_id", referencedColumnName = "id")
-//    @JsonBackReference("user-change")
     private User user;
 
     @ManyToOne
     @JoinColumn (name = "status_id", referencedColumnName = "id")
-//    @JsonBackReference("status-change")
     private ArticleStatus statusAfterChanges;
-
-
-    public Change(short version, String notes, Date date, int articleId, int userId, int articleStatusId) {
-        this.version = version;
-        this.notes = notes;
-        this.date = date;
-        this.article = Article.builder().id(articleId).build();
-        this.user = User.builder().id(userId).build();
-        this.statusAfterChanges = ArticleStatus.builder().id(articleStatusId).build();
-    }
 }

@@ -19,21 +19,21 @@ public class ArticleController {
 
     @GetMapping
     public List<Article> getArticles() {
-        return articleService.getAllArticles();
+        return articleService.getAll();
     }
 
     @PutMapping
     public Article createOrUpdateArticle(@RequestBody Article article) {
-        return articleService.addOrUpdateArticle(article);
+        return articleService.addOrUpdate(article);
     }
 
     @GetMapping("/{id}")
     public Article getArticleById(@PathVariable("id") int articleId) {
-        return articleService.getArticleById(articleId);
+        return articleService.getById(articleId);
     }
 
     @DeleteMapping("/{id}")
     public boolean deleteArticleById(@PathVariable("id") int articleId) {
-        return articleService.deleteArticleById(articleId);
+        return articleService.deleteById(articleId);
     }
 }

@@ -21,7 +21,6 @@ public class Category {
 
     @OneToMany(mappedBy = "category")
     @JsonIgnore
-//    @JsonManagedReference(value = "category-article")
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private List<Article> articlesWithCategory;

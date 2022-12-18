@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+@SuppressWarnings("unused")
 public interface ArticleRepository extends JpaRepository<Article, Integer> {
     List<Article> findAllByCategory_Name(String name);
     List<Article> findAllByAuthor_Name(String name);

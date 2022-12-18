@@ -21,7 +21,6 @@ public class Role {
 
     @OneToMany(mappedBy = "role")
     @JsonIgnore
-//    @JsonManagedReference("role-user")
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private List<User> usersWithRole;

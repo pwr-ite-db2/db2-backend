@@ -21,7 +21,6 @@ public class Tag {
 
     @ManyToMany (mappedBy = "tags")
     @JsonIgnore
-//    @JsonBackReference("article-tag")
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private Set<Article> taggedArticles;
