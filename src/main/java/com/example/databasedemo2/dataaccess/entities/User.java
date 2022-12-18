@@ -1,7 +1,6 @@
 package com.example.databasedemo2.dataaccess.entities;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -26,29 +25,33 @@ public class User {
 
     @ManyToOne
     @JoinColumn (name = "role_id", referencedColumnName = "id")
-    @JsonManagedReference
+//    @JsonBackReference("role-user")
     private Role role;
 
     private String email;
 
     private String name;
 
+    @JsonIgnore
     private char[] password;
 
     @OneToMany(mappedBy = "user")
-    @JsonBackReference
+    @JsonIgnore
+//    @JsonManagedReference("user-change")
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private List<Change> changesByUser;
 
     @OneToMany(mappedBy = "user")
-    @JsonBackReference
+    @JsonIgnore
+//    @JsonManagedReference("user-comment")
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private Set<Comment> commentsByUser;
 
     @OneToMany(mappedBy = "author")
-    @JsonBackReference
+//    @JsonManagedReference("user-article")
+    @JsonIgnore
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private Set<Article> articlesByUser;

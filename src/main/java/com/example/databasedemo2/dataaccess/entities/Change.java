@@ -1,6 +1,5 @@
 package com.example.databasedemo2.dataaccess.entities;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,17 +27,17 @@ public class Change {
 
     @ManyToOne
     @JoinColumn (name = "article_id", referencedColumnName = "id")
-    @JsonManagedReference
+//    @JsonBackReference("article-change")
     private Article article;
 
     @ManyToOne
     @JoinColumn (name = "user_id", referencedColumnName = "id")
-    @JsonManagedReference
+//    @JsonBackReference("user-change")
     private User user;
 
     @ManyToOne
     @JoinColumn (name = "status_id", referencedColumnName = "id")
-    @JsonManagedReference
+//    @JsonBackReference("status-change")
     private ArticleStatus statusAfterChanges;
 
 

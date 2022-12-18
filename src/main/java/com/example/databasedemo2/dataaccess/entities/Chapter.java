@@ -1,6 +1,5 @@
 package com.example.databasedemo2.dataaccess.entities;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,7 +19,8 @@ public class Chapter {
 
     @ManyToOne()
     @JoinColumn (name = "article_id", referencedColumnName = "id")
-    @JsonManagedReference
+//    @JsonIgnore
+//    @JsonBackReference("article-chapter")
     private Article article;
 
     private String subtitle;

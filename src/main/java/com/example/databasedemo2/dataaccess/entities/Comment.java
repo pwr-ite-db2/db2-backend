@@ -1,7 +1,6 @@
 package com.example.databasedemo2.dataaccess.entities;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -24,19 +23,21 @@ public class Comment {
 
     @ManyToOne()
     @JoinColumn (name = "article_id", referencedColumnName = "id")
-    @JsonManagedReference
+    @JsonIgnore
+//    @JsonBackReference("article-comment")
     private Article article;
 
     @OneToOne()
     @JoinColumn (name = "comment_id", referencedColumnName = "id")
-    @JsonBackReference
+    @JsonIgnore
+//    @JsonBackReference("comment-comment")
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private Comment responseTo;
 
     @ManyToOne()
     @JoinColumn (name = "user_id", referencedColumnName = "id")
-    @JsonManagedReference
+//    @JsonBackReference("user-comment")
     private User user;
 
     private String text;

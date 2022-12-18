@@ -1,6 +1,6 @@
 package com.example.databasedemo2.dataaccess.entities;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -20,7 +20,8 @@ public class Tag {
     private String name;
 
     @ManyToMany (mappedBy = "tags")
-    @JsonBackReference
+    @JsonIgnore
+//    @JsonBackReference("article-tag")
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private Set<Article> taggedArticles;

@@ -1,6 +1,6 @@
 package com.example.databasedemo2.dataaccess.entities;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -20,7 +20,8 @@ public class Category {
     private String name;
 
     @OneToMany(mappedBy = "category")
-    @JsonBackReference
+    @JsonIgnore
+//    @JsonManagedReference(value = "category-article")
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private List<Article> articlesWithCategory;

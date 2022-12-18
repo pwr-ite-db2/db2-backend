@@ -2,16 +2,13 @@ package com.example.databasedemo2;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.ConfigurableApplicationContext;
 
 @SpringBootApplication
 public class DatabaseDemo2Application {
 
     public static void main(String[] args) {
-        ConfigurableApplicationContext context = SpringApplication.run(DatabaseDemo2Application.class, args);
-        final Test service = context.getBean(Test.class);
-        service.generateRecords();
-
+        SpringApplication.run(DatabaseDemo2Application.class, args);
+//        final Test service = context.getBean(Test.class);
 //        List<Article> articles = service.articlesByTags(List.of(1,2,3));
 //        articles.forEach(System.out::println);
     }
