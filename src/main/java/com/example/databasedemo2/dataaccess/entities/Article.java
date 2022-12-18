@@ -53,7 +53,7 @@ public class Article {
     @EqualsAndHashCode.Exclude
     private List<Chapter> chapters;
 
-    @OneToMany(mappedBy = "article")
+    @OneToMany(mappedBy = "article", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JsonIgnore
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
@@ -68,7 +68,7 @@ public class Article {
     @EqualsAndHashCode.Exclude
     private Set<Tag> tags;
 
-    @OneToMany(mappedBy = "article")
+    @OneToMany(mappedBy = "article", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JsonIgnore
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
