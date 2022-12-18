@@ -7,7 +7,7 @@ import java.util.List;
 
 @Transactional
 public abstract class BaseService <T, ID> {
-    private final JpaRepository<T, ID> repository;
+    protected final JpaRepository<T, ID> repository;
 
     public BaseService(JpaRepository<T, ID> repository) {
         this.repository = repository;

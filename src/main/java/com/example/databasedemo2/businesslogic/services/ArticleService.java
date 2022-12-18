@@ -18,7 +18,6 @@ public class ArticleService extends BaseService<Article, Integer> {
         this.inEditViewRepository = inEditViewRepository;
         this.inMakingViewRepository = inMakingViewRepository;
     }
-
     @Override
     protected void handle() {
 
