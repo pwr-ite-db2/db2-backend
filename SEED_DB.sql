@@ -142,3 +142,6 @@
   INSERT INTO tag_to_articles (tag_id, article_id) VALUES (8, 5);
   INSERT INTO tag_to_articles (tag_id, article_id) VALUES (9, 5);
   INSERT INTO tag_to_articles (tag_id, article_id) VALUES (10, 5);
+
+-- druga odpowiedz do komentarza id = 1
+  INSERT INTO comments (id, created_at, updated_at, comment_id, user_id, text, article_id) VALUES (DEFAULT, to_timestamp(1667475493), NULL, 1, 6, 'Dziękuje za odpowiedź', 1);
