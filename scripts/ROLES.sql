@@ -83,6 +83,7 @@ GRANT EXECUTE ON ALL PROCEDURES IN SCHEMA  public TO administrator;
 ---------------------------------------------------------------------------
 --           specify privileges on views for all roles in the db
 ---------------------------------------------------------------------------
-GRANT SELECT ON articles_in_making TO employee;
-GRANT SELECT ON articles_in_edit TO employee;
-GRANT SELECT ON articles_waiting_for_edit TO employee;
+GRANT SELECT ON articles_in_making_view TO employee;
+GRANT SELECT ON articles_in_edit_view TO employee;
+GRANT SELECT ON articles_waiting_for_edit_view TO employee;
+GRANT SELECT ON main_page_view TO employee, reader;
