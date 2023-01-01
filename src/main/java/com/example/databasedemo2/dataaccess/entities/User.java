@@ -19,8 +19,10 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @JsonIgnore
     private Date createdAt;
 
+    @JsonIgnore
     private Date updatedAt;
 
     @ManyToOne

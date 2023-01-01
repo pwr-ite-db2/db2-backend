@@ -1,10 +1,13 @@
 package com.example.databasedemo2.dataaccess.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.Date;
+import java.util.List;
 
 @Entity(name = "Comment")
 @Table(name = "comments", schema = "public",  catalog = "projekt_db")
@@ -17,23 +20,33 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    private Date created_at;
+    private Date createdAt;
 
-    private Date updated_at;
+    private Date updatedAt;
 
-    @ManyToOne()
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn (name = "article_id", referencedColumnName = "id")
     @JsonIgnore
     private Article article;
 
-    @OneToOne()
+    @ManyToOne
     @JoinColumn (name = "comment_id", referencedColumnName = "id")
-    @JsonIgnore
     @ToString.Exclude
-    @EqualsAndHashCode.Exclude
-    private Comment responseTo;
+    @JsonBackReference
+    private Comment parentComment;
 
-    @ManyToOne()
+    @OneToMany(mappedBy = "parentComment", cascade = CascadeType.REMOVE)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    @JsonManagedReference
+    private List<Comment> responses;
+
+    @Transient
+    @JsonIgnore
+    @EqualsAndHashCode.Exclude
+    private boolean read = false;
+
+    @ManyToOne
     @JoinColumn (name = "user_id", referencedColumnName = "id")
     private User user;
 

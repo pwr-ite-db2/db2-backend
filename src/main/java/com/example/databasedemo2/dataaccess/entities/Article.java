@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.DynamicUpdate;
 
 import java.util.Date;
 import java.util.List;
@@ -16,15 +17,17 @@ import java.util.Set;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonIdentityInfo(
+@JsonIdentityInfo (
         generator = ObjectIdGenerators.PropertyGenerator.class,
-        property = "id")
+        property = "id"
+)
+@DynamicUpdate
 public class Article {
     @Id
     @GeneratedValue (strategy = GenerationType.IDENTITY)
     private int id;
 
-    @ManyToOne()
+    @ManyToOne
     @JoinColumn (name = "category_id", referencedColumnName = "id")
     private Category category;
 
@@ -34,11 +37,11 @@ public class Article {
 
     private boolean adultContent;
 
-    @ManyToOne()
+    @ManyToOne
     @JoinColumn (name = "status_id", referencedColumnName = "id")
     private ArticleStatus articleStatus;
 
-    @ManyToOne()
+    @ManyToOne
     @JoinColumn (name = "style_id", referencedColumnName = "id")
     private Style style;
 
@@ -46,11 +49,11 @@ public class Article {
 
     private Date removedAt;
 
-    @ManyToOne()
+    @ManyToOne
     @JoinColumn (name = "user_id", referencedColumnName = "id")
     private User author;
 
-    @OneToMany(mappedBy = "article", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "article", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private List<Chapter> chapters;
@@ -61,7 +64,7 @@ public class Article {
     @EqualsAndHashCode.Exclude
     private List<Change> changeHistory;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     @JoinTable (
             name = "tag_to_articles",
             joinColumns = @JoinColumn(name = "article_id"),
@@ -70,9 +73,9 @@ public class Article {
     @EqualsAndHashCode.Exclude
     private Set<Tag> tags;
 
-    @OneToMany(mappedBy = "article", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "article", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    private Set<Comment> comments;
+    private List<Comment> comments;
 }

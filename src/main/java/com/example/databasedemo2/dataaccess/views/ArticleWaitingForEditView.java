@@ -9,14 +9,14 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.hibernate.annotations.Immutable;
 
-@Entity(name = "ArticleInEditView")
-@Table(name = "articles_in_edit_view", schema = "public",  catalog = "projekt_db")
+@Entity(name = "ArticleWaitingForEditView")
+@Table(name = "articles_waiting_for_edit_view", schema = "public",  catalog = "projekt_db")
 @Immutable
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class ArticleInEditView {
+public class ArticleWaitingForEditView {
     @Id
     private int articleId;
 
@@ -24,5 +24,5 @@ public class ArticleInEditView {
 
     private int userId;
 
-    private String editor;
+    private String author;
 }

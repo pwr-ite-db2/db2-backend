@@ -1,10 +1,7 @@
 package com.example.databasedemo2.dataaccess.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity(name = "Chapter")
 @Table(name = "chapters", schema = "public",  catalog = "projekt_db")
@@ -19,6 +16,7 @@ public class Chapter {
 
     @ManyToOne()
     @JoinColumn (name = "article_id", referencedColumnName = "id")
+    @ToString.Exclude
     private Article article;
 
     private String subtitle;
