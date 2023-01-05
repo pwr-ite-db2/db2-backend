@@ -4,20 +4,19 @@ import com.example.databasedemo2.businesslogic.services.ArticleService;
 import com.example.databasedemo2.dataaccess.entities.Article;
 import com.example.databasedemo2.dataaccess.entities.Comment;
 import com.example.databasedemo2.dataaccess.views.MainPageView;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.databasedemo2.security.JwtService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/articles")
+@RequiredArgsConstructor
 public class ArticleController {
     private final ArticleService articleService;
-
-    @Autowired
-    public ArticleController(ArticleService articleService) {
-        this.articleService = articleService;
-    }
+    private final JwtService jwtService;
 
     @GetMapping("/main-page")
     public List<MainPageView> getMainPageContent() {
@@ -35,7 +34,11 @@ public class ArticleController {
     }
 
     @GetMapping("/{id}")
-    public Article getArticleById(@PathVariable("id") int articleId) {
+    public Article getArticleById(@RequestHeader Map<String, String> headers, @PathVariable("id") int articleId) {
+        String jwtHeader = headers.get("authorization");
+        String jwt = jwtService.getTokenFromHeader(jwtHeader);
+        System.out.println(jwtService.getUserId(jwt));
+
         return articleService.getById(articleId);
     }
 
