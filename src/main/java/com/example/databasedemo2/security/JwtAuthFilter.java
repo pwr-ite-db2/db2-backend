@@ -1,6 +1,6 @@
 package com.example.databasedemo2.security;
 
-import com.example.databasedemo2.businesslogic.services.UserService;
+import com.example.databasedemo2.entitymanagement.services.UserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -32,19 +32,19 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         final String token;
         final String username;
 
-        // accept only jwt
+        // check if request has a jwt
         if (jwtHeader == null || !jwtHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);    // pass execution to the next filter
             return;
         }
 
-//        token = jwtHeader.substring(7); // start of the JWT
-        token = jwtService.getTokenFromHeader(jwtHeader);
+        token = jwtHeader.substring(7); // start of the JWT
         username = jwtService.getUsername(token);   // get username (email) from the token
 
         // check if user is already authenticated
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails user = userService.loadUserByUsername(username);    // get user from database
+            // get user from database, throws exception if user doesn't exist
+            UserDetails user = userService.loadUserByUsername(username);
 
             // check if token is valid
             if (jwtService.isValidToken(token, user)) {

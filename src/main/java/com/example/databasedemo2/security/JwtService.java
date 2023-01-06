@@ -17,14 +17,10 @@ import java.util.function.Function;
 @Service
 public class JwtService {
     private static final String SECRET = "2A462D4A614E645267556B58703273357538782F413F4428472B4B6250655368";
-    private static final long EXPIRATION_TIME_IN_MILLIS = 1000 * 60 * 6;   // 6 hours
+    private static final long EXPIRATION_TIME_IN_MILLIS = 1000 * 60 * 60 * 6;   // 6 hours
 
     public String generateToken(UserDetails userDetails) {
         return generateToken(Collections.emptyMap(), userDetails);
-    }
-
-    public String getTokenFromHeader(String header) {
-        return header.substring(7); // start of the JWT
     }
 
     public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {

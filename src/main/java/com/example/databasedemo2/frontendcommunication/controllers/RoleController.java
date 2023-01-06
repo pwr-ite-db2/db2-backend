@@ -1,19 +1,17 @@
 package com.example.databasedemo2.frontendcommunication.controllers;
 
-import com.example.databasedemo2.businesslogic.services.RoleService;
-import com.example.databasedemo2.dataaccess.entities.Role;
+import com.example.databasedemo2.entitymanagement.services.RoleService;
+import com.example.databasedemo2.entitymanagement.entities.Role;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/roles")
+@RequiredArgsConstructor
 public class RoleController {
     private final RoleService roleService;
-
-    public RoleController(RoleService roleService) {
-        this.roleService = roleService;
-    }
 
     @GetMapping
     public List<Role> getRoles() {

@@ -1,6 +1,6 @@
 package com.example.databasedemo2.configuration;
 
-import com.example.databasedemo2.businesslogic.services.UserService;
+import com.example.databasedemo2.entitymanagement.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

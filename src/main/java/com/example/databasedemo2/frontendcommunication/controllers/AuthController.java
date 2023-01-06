@@ -1,9 +1,10 @@
 package com.example.databasedemo2.frontendcommunication.controllers;
 
-import com.example.databasedemo2.dataaccess.entities.User;
+import com.example.databasedemo2.entitymanagement.entities.User;
 import com.example.databasedemo2.frontendcommunication.custom.AuthRequest;
 import com.example.databasedemo2.frontendcommunication.custom.AuthResponse;
 import com.example.databasedemo2.security.AuthService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,7 +18,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register")
-    public AuthResponse register(@RequestBody User newUser) {
+    public AuthResponse register(@Valid @RequestBody User newUser) {
         return authService.register(newUser);
     }
 

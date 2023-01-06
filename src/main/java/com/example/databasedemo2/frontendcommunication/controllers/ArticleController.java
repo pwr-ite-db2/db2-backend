@@ -1,10 +1,13 @@
 package com.example.databasedemo2.frontendcommunication.controllers;
 
-import com.example.databasedemo2.businesslogic.services.ArticleService;
-import com.example.databasedemo2.dataaccess.entities.Article;
-import com.example.databasedemo2.dataaccess.entities.Comment;
-import com.example.databasedemo2.dataaccess.views.MainPageView;
-import com.example.databasedemo2.security.JwtService;
+import com.example.databasedemo2.anotations.isAdmin;
+import com.example.databasedemo2.anotations.isEmployee;
+import com.example.databasedemo2.anotations.isLoggedIn;
+import com.example.databasedemo2.entitymanagement.entities.Article;
+import com.example.databasedemo2.entitymanagement.entities.Comment;
+import com.example.databasedemo2.entitymanagement.services.ArticleService;
+import com.example.databasedemo2.entitymanagement.views.MainPageView;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,7 +19,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ArticleController {
     private final ArticleService articleService;
-    private final JwtService jwtService;
 
     @GetMapping("/main-page")
     public List<MainPageView> getMainPageContent() {
@@ -28,20 +30,18 @@ public class ArticleController {
         return articleService.getAll();
     }
 
+    @isEmployee
     @PutMapping
-    public Article createOrUpdateArticle(@RequestBody Article article) {
+    public Article createOrUpdateArticle(@Valid @RequestBody Article article, @RequestParam(required = false) Map<String, Object> params) {
         return articleService.addOrUpdate(article);
     }
 
     @GetMapping("/{id}")
-    public Article getArticleById(@RequestHeader Map<String, String> headers, @PathVariable("id") int articleId) {
-        String jwtHeader = headers.get("authorization");
-        String jwt = jwtService.getTokenFromHeader(jwtHeader);
-        System.out.println(jwtService.getUserId(jwt));
-
+    public Article getArticleById(@PathVariable("id") int articleId) {
         return articleService.getById(articleId);
     }
 
+    @isAdmin
     @DeleteMapping("/{id}")
     public boolean deleteArticleById(@PathVariable("id") int articleId) {
         return articleService.deleteById(articleId);
@@ -52,6 +52,7 @@ public class ArticleController {
         return articleService.getAllCommentsByArticleId(articleId);
     }
 
+    @isLoggedIn
     @PutMapping("/{id}/comments")
     public Comment createOrUpdateComment(@PathVariable("id") int articleId, @RequestBody Comment comment) {
         return articleService.addOrUpdateComment(articleId, comment);
@@ -62,6 +63,7 @@ public class ArticleController {
         return articleService.getCommentByArticleIdAndCommentId(articleId, commentId);
     }
 
+    @isAdmin
     @DeleteMapping("/{id}/comments/{comment_id}")
     public boolean deleteCommentByArticleIdAndCommentId(@PathVariable("id") int articleId, @PathVariable("comment_id") int commentId) {
         return articleService.deleteCommentById(articleId, commentId);

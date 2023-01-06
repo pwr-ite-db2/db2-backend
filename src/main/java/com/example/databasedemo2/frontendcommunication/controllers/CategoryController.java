@@ -1,21 +1,17 @@
 package com.example.databasedemo2.frontendcommunication.controllers;
 
-import com.example.databasedemo2.businesslogic.services.CategoryService;
-import com.example.databasedemo2.dataaccess.entities.Category;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.databasedemo2.entitymanagement.services.CategoryService;
+import com.example.databasedemo2.entitymanagement.entities.Category;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/categories")
+@RequiredArgsConstructor
 public class CategoryController {
     private final CategoryService categoryService;
-
-    @Autowired
-    public CategoryController(CategoryService categoryService) {
-        this.categoryService = categoryService;
-    }
 
     @GetMapping
     public List<Category> getCategories() {

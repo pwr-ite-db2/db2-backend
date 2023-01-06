@@ -1,51 +1,56 @@
 package com.example.databasedemo2.security;
 
-import com.example.databasedemo2.businesslogic.services.UserService;
-import com.example.databasedemo2.dataaccess.entities.Role;
-import com.example.databasedemo2.dataaccess.entities.User;
+import com.example.databasedemo2.entitymanagement.entities.Role;
+import com.example.databasedemo2.entitymanagement.entities.User;
+import com.example.databasedemo2.entitymanagement.services.RoleService;
+import com.example.databasedemo2.entitymanagement.services.UserService;
+import com.example.databasedemo2.exceptions.custom.RegistrationException;
 import com.example.databasedemo2.frontendcommunication.custom.AuthRequest;
 import com.example.databasedemo2.frontendcommunication.custom.AuthResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class AuthService {
     private final UserService userService;
+    private final RoleService roleService;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
 
-    @Transactional
-    public AuthResponse register(User newUser) {
+    public AuthResponse register(User newUser) throws RegistrationException {
+        if (userService.existsByEmail(newUser.getEmail()))
+            throw new RegistrationException();
+
         newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
-        newUser.setRole(Role.builder().id(1).build());
+
+        if (newUser.getRole() == null) {
+            Role defaultRole = roleService.getDefaultRole();
+            newUser.setRole(defaultRole);
+        }
+
         newUser.setCreatedAt(new Date());
-        newUser = userService.addOrUpdate(newUser);
-        Map<String, Object> idMapping = new HashMap<>();
-        idMapping.put("id", newUser.getId());
-        String token = jwtService.generateToken(idMapping, newUser);
+        newUser = userService.add(newUser);
+        String token = jwtService.generateToken(newUser);
         return new AuthResponse(token);
     }
 
-    @Transactional
-    public AuthResponse authenticate(AuthRequest authRequest) {
+    public AuthResponse authenticate(AuthRequest authRequest) throws BadCredentialsException {
         // throws exception if login or password are invalid
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getEmail(),
                 authRequest.getPassword()));
 
         User user = (User) userService.loadUserByUsername(authRequest.getEmail());
-        Map<String, Object> idMapping = new HashMap<>();
-        idMapping.put("id", user.getId());
-        String token = jwtService.generateToken(idMapping, user);
+        String token = jwtService.generateToken(user);
         return new AuthResponse(token);
     }
 }
