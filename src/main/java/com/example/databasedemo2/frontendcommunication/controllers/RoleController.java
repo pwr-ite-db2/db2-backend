@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/roles")
@@ -14,13 +15,13 @@ public class RoleController {
     private final RoleService roleService;
 
     @GetMapping
-    public List<Role> getRoles() {
-        return roleService.getAll();
+    public List<Role> getRoles(@RequestParam(required = false) Map<String, Object> params) {
+        return roleService.getAll(params);
     }
 
     @PutMapping
-    public Role createOrUpdateRole(@RequestBody Role role) {
-        return roleService.addOrUpdate(role);
+    public Role createOrUpdateRole(@RequestBody Role role, @RequestParam(required = false) Map<String, Object> params) {
+        return roleService.addOrUpdate(role, params);
     }
 
     @GetMapping("/{id}")

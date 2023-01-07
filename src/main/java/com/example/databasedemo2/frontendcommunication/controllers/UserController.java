@@ -1,16 +1,18 @@
 package com.example.databasedemo2.frontendcommunication.controllers;
 
-import com.example.databasedemo2.anotations.isAdmin;
-import com.example.databasedemo2.anotations.isLoggedIn;
 import com.example.databasedemo2.entitymanagement.entities.User;
 import com.example.databasedemo2.entitymanagement.services.UserService;
 import com.example.databasedemo2.entitymanagement.views.ArticleInMakingView;
 import com.example.databasedemo2.frontendcommunication.custom.EditorPaneResponse;
-import jakarta.annotation.security.RolesAllowed;
+import com.example.databasedemo2.security.anotations.isAdmin;
+import com.example.databasedemo2.security.anotations.isAuthor;
+import com.example.databasedemo2.security.anotations.isEditor;
+import com.example.databasedemo2.security.anotations.isLoggedIn;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/users")
@@ -18,13 +20,13 @@ import java.util.List;
 public class UserController {
     private final UserService userService;
 
-    @RolesAllowed({"AUTOR", "ADMIN"})
+    @isAuthor
     @GetMapping("/author-working-pane")
     public List<ArticleInMakingView> getAuthorPane() {
-        return userService.getArticlesInMakingByCurrentUser();
+        return userService.getAuthorPane();
     }
 
-    @RolesAllowed({"REDAKTOR", "ADMIN"})
+    @isEditor
     @GetMapping("/editor-working-pane")
     public EditorPaneResponse getEditorPane() {
         return userService.getEditorPane();
@@ -32,17 +34,17 @@ public class UserController {
 
     @isAdmin
     @GetMapping
-    public List<User> getUsers() {
-        return userService.getAll();
+    public List<User> getUsers(@RequestParam(required = false) Map<String, Object> params) {
+        return userService.getAll(params);
     }
 
     @isLoggedIn
     @PutMapping
-    public User updateUser(@RequestBody User user) {
-        return userService.update(user);
+    public User updateUser(@RequestBody User user, @RequestParam(required = false) Map<String, Object> params) {
+        return userService.update(user, params);
     }
 
-    @isAdmin
+    @isLoggedIn
     @GetMapping("/{id}")
     public User getUserById(@PathVariable("id") int userId) {
         return userService.getById(userId);

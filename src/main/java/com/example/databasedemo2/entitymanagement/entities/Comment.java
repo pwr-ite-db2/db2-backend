@@ -47,6 +47,7 @@ public class Comment {
     @Transient
     @JsonIgnore
     @EqualsAndHashCode.Exclude
+    @Builder.Default
     private boolean read = false;
 
     @ManyToOne

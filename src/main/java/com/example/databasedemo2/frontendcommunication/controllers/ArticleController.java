@@ -1,12 +1,10 @@
 package com.example.databasedemo2.frontendcommunication.controllers;
 
-import com.example.databasedemo2.anotations.isAdmin;
-import com.example.databasedemo2.anotations.isEmployee;
-import com.example.databasedemo2.anotations.isLoggedIn;
 import com.example.databasedemo2.entitymanagement.entities.Article;
 import com.example.databasedemo2.entitymanagement.entities.Comment;
 import com.example.databasedemo2.entitymanagement.services.ArticleService;
 import com.example.databasedemo2.entitymanagement.views.MainPageView;
+import com.example.databasedemo2.security.anotations.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -26,14 +24,14 @@ public class ArticleController {
     }
 
     @GetMapping
-    public List<Article> getArticles() {
-        return articleService.getAll();
+    public List<Article> getArticles(@RequestParam(required = false) Map<String, Object> params) {
+        return articleService.getAll(params);
     }
 
     @isEmployee
     @PutMapping
     public Article createOrUpdateArticle(@Valid @RequestBody Article article, @RequestParam(required = false) Map<String, Object> params) {
-        return articleService.addOrUpdate(article);
+        return articleService.addOrUpdate(article, params);
     }
 
     @GetMapping("/{id}")
@@ -54,7 +52,7 @@ public class ArticleController {
 
     @isLoggedIn
     @PutMapping("/{id}/comments")
-    public Comment createOrUpdateComment(@PathVariable("id") int articleId, @RequestBody Comment comment) {
+    public Comment createOrUpdateComment(@PathVariable("id") int articleId, @Valid @RequestBody Comment comment) {
         return articleService.addOrUpdateComment(articleId, comment);
     }
 
@@ -67,5 +65,29 @@ public class ArticleController {
     @DeleteMapping("/{id}/comments/{comment_id}")
     public boolean deleteCommentByArticleIdAndCommentId(@PathVariable("id") int articleId, @PathVariable("comment_id") int commentId) {
         return articleService.deleteCommentById(articleId, commentId);
+    }
+
+    @isAuthor
+    @PutMapping("/submit")
+    public Article submitArticleForEditing(@Valid @RequestBody Article article) {
+        return articleService.submitArticleForEditing(article);
+    }
+
+    @isEditor
+    @PutMapping("/publish")
+    public Article publishArticle(@Valid @RequestBody Article article) {
+        return articleService.publishArticle(article);
+    }
+
+    @isEditor
+    @GetMapping("/{id}/edit")
+    public Article pickArticleForEditing(@PathVariable("id") int articleId) {
+        return articleService.pickArticleForEditing(articleId);
+    }
+
+    @isEditor
+    @GetMapping("/{id}/rollback")
+    public Article rollbackArticle(@PathVariable("id") int articleId) {
+        return articleService.rollbackArticle(articleId);
     }
 }

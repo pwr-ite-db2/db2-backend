@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/styles")
@@ -14,13 +15,13 @@ public class StylesController {
     private final StylesService stylesService;
 
     @GetMapping
-    public List<Style> getStyles() {
-        return stylesService.getAll();
+    public List<Style> getStyles(@RequestParam(required = false) Map<String, Object> params) {
+        return stylesService.getAll(params);
     }
 
     @PutMapping
-    public Style createOrUpdateStyle(@RequestBody Style style) {
-        return stylesService.addOrUpdate(style);
+    public Style createOrUpdateStyle(@RequestBody Style style, @RequestParam(required = false) Map<String, Object> params) {
+        return stylesService.addOrUpdate(style, params);
     }
 
     @GetMapping("/{id}")

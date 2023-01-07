@@ -1,6 +1,7 @@
 package com.example.databasedemo2.security;
 
 import com.example.databasedemo2.entitymanagement.services.UserService;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,7 +28,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             @NonNull HttpServletRequest request,
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain
-    ) throws ServletException, IOException {
+    ) throws ServletException, IOException, JwtException {
         final String jwtHeader = request.getHeader("Authorization");
         final String token;
         final String username;

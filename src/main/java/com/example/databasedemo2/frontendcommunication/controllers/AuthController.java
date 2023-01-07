@@ -1,5 +1,6 @@
 package com.example.databasedemo2.frontendcommunication.controllers;
 
+import com.example.databasedemo2.security.anotations.isAdmin;
 import com.example.databasedemo2.entitymanagement.entities.User;
 import com.example.databasedemo2.frontendcommunication.custom.AuthRequest;
 import com.example.databasedemo2.frontendcommunication.custom.AuthResponse;
@@ -19,7 +20,13 @@ public class AuthController {
 
     @PostMapping("/register")
     public AuthResponse register(@Valid @RequestBody User newUser) {
-        return authService.register(newUser);
+        return authService.register(newUser, false);
+    }
+
+    @isAdmin
+    @PostMapping("/register-admin")
+    public AuthResponse registerAdmin(@Valid @RequestBody User newUser) {
+        return authService.register(newUser, true);
     }
 
     @PostMapping("/login")

@@ -27,13 +27,13 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
 
-    public AuthResponse register(User newUser) throws RegistrationException {
+    public AuthResponse register(User newUser, boolean isAdmin) throws RegistrationException {
         if (userService.existsByEmail(newUser.getEmail()))
             throw new RegistrationException();
 
         newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
 
-        if (newUser.getRole() == null) {
+        if (!isAdmin || newUser.getRole() == null) {
             Role defaultRole = roleService.getDefaultRole();
             newUser.setRole(defaultRole);
         }

@@ -11,14 +11,17 @@ import com.example.databasedemo2.entitymanagement.views.ArticleWaitingForEditVie
 import com.example.databasedemo2.frontendcommunication.custom.EditorPaneResponse;
 import com.example.databasedemo2.security.UserAuthenticationInfoImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class UserService extends BaseService <User, Integer> implements UserDetailsService {
@@ -26,17 +29,20 @@ public class UserService extends BaseService <User, Integer> implements UserDeta
     private final ArticlesInMakingViewRepository inMakingViewRepository;
     private final ArticleWaitingForEditViewRepository waitingForEditViewRepository;
     private final UserAuthenticationInfoImpl userInfo;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
     public UserService(JpaRepository<User, Integer> repository, ArticlesInEditViewRepository inEditViewRepository,
                        ArticlesInMakingViewRepository inMakingViewRepository, UserAuthenticationInfoImpl userInfo,
-                       ArticleWaitingForEditViewRepository waitingForEditViewRepository) {
+                       ArticleWaitingForEditViewRepository waitingForEditViewRepository,
+                       @Lazy PasswordEncoder passwordEncoder) {
 
         super(repository);
         this.inEditViewRepository = inEditViewRepository;
         this.inMakingViewRepository = inMakingViewRepository;
         this.userInfo = userInfo;
         this.waitingForEditViewRepository = waitingForEditViewRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -48,19 +54,18 @@ public class UserService extends BaseService <User, Integer> implements UserDeta
         return ((UserRepository) repository).existsByEmail(email);
     }
 
-    public List<ArticleInMakingView> getArticlesInMakingByCurrentUser() {
+    public List<ArticleInMakingView> getAuthorPane() {
         User currentUser = userInfo.getAuthenticationInfo();
-        return currentUser.getRole().getName().equals("AUTOR") ? inMakingViewRepository.findAllByUserId(currentUser.getId()) : null;
+        return inMakingViewRepository.findAllByUserId(currentUser.getId());
     }
 
     private List<ArticleInEditView> getArticlesInEditByCurrentUser() {
         User currentUser = userInfo.getAuthenticationInfo();
-        return currentUser.getRole().getName().equals("REDAKTOR") ? inEditViewRepository.findAllByUserId(currentUser.getId()) : null;
+        return inEditViewRepository.findAllByUserId(currentUser.getId());
     }
 
     private List<ArticleWaitingForEditView> getArticlesWaitingForEdit() {
-        User currentUser = userInfo.getAuthenticationInfo();
-        return currentUser.getRole().getName().equals("REDAKTOR") ? waitingForEditViewRepository.findAll() : null;
+        return waitingForEditViewRepository.findAll();
     }
 
     public EditorPaneResponse getEditorPane() {
@@ -68,24 +73,34 @@ public class UserService extends BaseService <User, Integer> implements UserDeta
     }
 
     @Override
-    public User addOrUpdate(User entity) {
+    public User addOrUpdate(User entity, Map<String, Object> params) {
         return null;
     }
 
     public User add(User entity) {
-        return entity.getId() == 0 ? super.addOrUpdate(entity) : null;
+        return entity.getId() == 0 ? repository.save(entity) : null;
     }
 
-    public User update(User entity) {
+    public User update(User entity, Map<String, Object> params) {
         if (entity.getId() == 0)
             return null;
 
-        if (entity.getPassword() == null) {
-            String password = super.getById(entity.getId()).getPassword();
-            entity.setPassword(password);
-            entity.setUpdatedAt(new Date());
+        User currentUser = userInfo.getAuthenticationInfo();
+        boolean isAdmin = currentUser.getRole().getName().equals("ADMIN");
+
+        // can't change these fields unless you are an admin
+        if (!isAdmin) {
+            entity.setRole(currentUser.getRole());
+            entity.setEmail(currentUser.getEmail());
+            entity.setCreatedAt(currentUser.getCreatedAt());
         }
 
-        return super.addOrUpdate(entity);
+        if (entity.getPassword() == null)
+            entity.setPassword(currentUser.getPassword());
+        else
+            entity.setPassword(passwordEncoder.encode(entity.getPassword()));
+
+        entity.setUpdatedAt(new Date());
+        return super.addOrUpdate(entity, params);
     }
 }

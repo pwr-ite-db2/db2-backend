@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/categories")
@@ -14,13 +15,13 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @GetMapping
-    public List<Category> getCategories() {
-        return categoryService.getAll();
+    public List<Category> getCategories(@RequestParam(required = false) Map<String, Object> params) {
+        return categoryService.getAll(params);
     }
 
     @PutMapping
-    public Category createOrUpdateCategory(@RequestBody Category category) {
-        return categoryService.addOrUpdate(category);
+    public Category createOrUpdateCategory(@RequestBody Category category, @RequestParam(required = false) Map<String, Object> params) {
+        return categoryService.addOrUpdate(category, params);
     }
 
     @GetMapping("/{id}")

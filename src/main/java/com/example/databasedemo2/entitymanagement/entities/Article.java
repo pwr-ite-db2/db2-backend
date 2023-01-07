@@ -18,10 +18,6 @@ import java.util.Set;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-//@JsonIdentityInfo (
-//        generator = ObjectIdGenerators.PropertyGenerator.class,
-//        property = "id"
-//)
 @DynamicUpdate
 public class Article {
     @Id
@@ -45,7 +41,6 @@ public class Article {
 
     @ManyToOne
     @JoinColumn (name = "status_id", referencedColumnName = "id")
-    @NotNull(message = "Article status cannot be empty!")
     private ArticleStatus articleStatus;
 
     @ManyToOne

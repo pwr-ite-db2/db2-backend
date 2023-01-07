@@ -1,0 +1,14 @@
+package com.example.databasedemo2.security.anotations;
+
+import jakarta.annotation.security.RolesAllowed;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+@RolesAllowed("REDAKTOR")
+public @interface isEditor {
+}

@@ -2,6 +2,7 @@ package com.example.databasedemo2.exceptions;
 
 import com.example.databasedemo2.exceptions.custom.RegistrationException;
 import com.example.databasedemo2.exceptions.custom.ResourceNotFoundException;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
@@ -32,7 +33,7 @@ public class ExceptionHandlers {
     @ExceptionHandler(ResourceNotFoundException.class)
     public Map<String, String> handleResourceNotFoundExceptions(ResourceNotFoundException e) {
         Map<String, String> errors = new HashMap<>();
-        errors.put("error", e.getMessage());
+        errors.put("cause", e.getMessage());
         return errors;
     }
 
@@ -40,7 +41,7 @@ public class ExceptionHandlers {
     @ExceptionHandler(BadCredentialsException.class)
     public Map<String, String> handleLoggingExceptions(BadCredentialsException e) {
         Map<String, String> errors = new HashMap<>();
-        errors.put("error", e.getMessage());
+        errors.put("cause", e.getMessage());
         return errors;
     }
 
@@ -48,7 +49,15 @@ public class ExceptionHandlers {
     @ExceptionHandler(RegistrationException.class)
     public Map<String, String> handleRegistrationExceptions(RegistrationException e) {
         Map<String, String> errors = new HashMap<>();
-        errors.put("error", e.getMessage());
+        errors.put("cause", e.getMessage());
+        return errors;
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(EntityNotFoundException.class)
+    public Map<String, String> handleEntityNotFoundExceptions(EntityNotFoundException e) {
+        Map<String, String> errors = new HashMap<>();
+        errors.put("cause", e.getMessage());
         return errors;
     }
 }

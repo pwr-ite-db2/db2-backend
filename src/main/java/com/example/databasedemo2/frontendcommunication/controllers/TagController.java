@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/tags")
@@ -14,13 +15,13 @@ public class TagController {
     private final TagService tagService;
 
     @GetMapping
-    public List<Tag> getTags() {
-        return tagService.getAll();
+    public List<Tag> getTags(@RequestParam(required = false) Map<String, Object> params) {
+        return tagService.getAll(params);
     }
 
     @PutMapping
-    public Tag createOrUpdateTag(@RequestBody Tag tag) {
-        return tagService.addOrUpdate(tag);
+    public Tag createOrUpdateTag(@RequestBody Tag tag, @RequestParam(required = false) Map<String, Object> params) {
+        return tagService.addOrUpdate(tag, params);
     }
 
     @GetMapping("/{id}")

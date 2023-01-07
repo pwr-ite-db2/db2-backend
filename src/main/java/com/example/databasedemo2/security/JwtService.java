@@ -1,9 +1,11 @@
 package com.example.databasedemo2.security;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.InvalidKeyException;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -23,7 +25,7 @@ public class JwtService {
         return generateToken(Collections.emptyMap(), userDetails);
     }
 
-    public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
+    public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) throws InvalidKeyException {
         return Jwts
                 .builder()
                 .setClaims(extraClaims)
@@ -38,20 +40,16 @@ public class JwtService {
         return getClaim(token, Claims::getSubject);
     }
 
-    public Integer getUserId(String token) {
-        return getClaim(token, (claims -> claims.get("id", Integer.class)));
-    }
-
     public Date getExpirationDate(String token) {
         return getClaim(token, Claims::getExpiration);
     }
 
-    public <T> T getClaim(String token, Function<Claims, T> claimsResolver) {
+    public <T> T getClaim(String token, Function<Claims, T> claimsResolver) throws JwtException {
         final Claims claims = getAllClaims(token);
         return claimsResolver.apply(claims);
     }
 
-    private Claims getAllClaims(String token) {
+    private Claims getAllClaims(String token) throws JwtException {
         return Jwts
                 .parserBuilder()
                 .setSigningKey(getSignInKey())
