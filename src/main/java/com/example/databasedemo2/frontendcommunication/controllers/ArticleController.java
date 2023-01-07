@@ -24,13 +24,13 @@ public class ArticleController {
     }
 
     @GetMapping
-    public List<Article> getArticles(@RequestParam(required = false) Map<String, Object> params) {
+    public List<Article> getArticles(@RequestParam(required = false) Map<String, String> params) {
         return articleService.getAll(params);
     }
 
     @isEmployee
     @PutMapping
-    public Article createOrUpdateArticle(@Valid @RequestBody Article article, @RequestParam(required = false) Map<String, Object> params) {
+    public Article createOrUpdateArticle(@Valid @RequestBody Article article, @RequestParam(required = false) Map<String, String> params) {
         return articleService.addOrUpdate(article, params);
     }
 

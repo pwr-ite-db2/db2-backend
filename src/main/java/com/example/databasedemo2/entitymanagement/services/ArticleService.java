@@ -1,19 +1,17 @@
 package com.example.databasedemo2.entitymanagement.services;
 
 import com.example.databasedemo2.entitymanagement.entities.*;
-import com.example.databasedemo2.entitymanagement.repositories.ArticleRepository;
 import com.example.databasedemo2.entitymanagement.repositories.ArticleStatusRepository;
+import com.example.databasedemo2.entitymanagement.repositories.BaseRepository;
 import com.example.databasedemo2.entitymanagement.repositories.readonly.MainPageViewRepository;
 import com.example.databasedemo2.entitymanagement.views.MainPageView;
 import com.example.databasedemo2.exceptions.custom.ResourceNotFoundException;
 import com.example.databasedemo2.security.UserAuthenticationInfoImpl;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.function.Function;
 
 @Service
 public class ArticleService extends BaseService<Article, Integer> {
@@ -26,10 +24,8 @@ public class ArticleService extends BaseService<Article, Integer> {
 
     private final ChangeService changeService;
 
-    private static final Map<String, Function<Object, List<Article>>> paramToFunctionMap = new HashMap<>();
-
     @Autowired
-    public ArticleService(JpaRepository<Article, Integer> repository, MainPageViewRepository mainPageViewRepository,
+    public ArticleService(BaseRepository<Article, Integer> repository, MainPageViewRepository mainPageViewRepository,
                           UserAuthenticationInfoImpl userInfo, ArticleStatusRepository articleStatusRepository,
                           ChangeService changeService) {
         super(repository);
@@ -37,13 +33,6 @@ public class ArticleService extends BaseService<Article, Integer> {
         this.userInfo = userInfo;
         this.articleStatusRepository = articleStatusRepository;
         this.changeService = changeService;
-    }
-
-    @Override
-    public List<Article> getAll(Map<String, Object> params) {
-//        System.out.println("params = " + params);
-        System.out.println(params.get("tag_id"));
-        return super.getAll(params);
     }
 
     public List<MainPageView> getMainPageContent() {
@@ -105,7 +94,7 @@ public class ArticleService extends BaseService<Article, Integer> {
     }
 
     @Override
-    public Article addOrUpdate(Article entity, Map<String, Object> params) throws EntityNotFoundException, ResourceNotFoundException {
+    public Article addOrUpdate(Article entity, Map<String, String> params) throws EntityNotFoundException, ResourceNotFoundException {
         // get user making changes to the article
         User currentUser = userInfo.getAuthenticationInfo();
 
@@ -146,7 +135,7 @@ public class ArticleService extends BaseService<Article, Integer> {
             chapter.setArticle(entity);
         }
 
-        String changesNote = (String) params.get("note");
+        String changesNote = params.get("note");
         logChanges(entity.getId(), currentUser, changesNote, entity.getArticleStatus());
         return super.addOrUpdate(entity, params);
     }
@@ -211,15 +200,5 @@ public class ArticleService extends BaseService<Article, Integer> {
                 .build();
 
         changeService.addOrUpdate(change, Collections.emptyMap());
-    }
-
-    private void populate() {
-        paramToFunctionMap.put("category", o ->
-            ((ArticleRepository) repository).findAllByCategory_Name((String) o)
-        );
-
-        paramToFunctionMap.put("author", o ->
-                ((ArticleRepository) repository).findAllByAuthor_Name((String) o)
-        );
     }
 }

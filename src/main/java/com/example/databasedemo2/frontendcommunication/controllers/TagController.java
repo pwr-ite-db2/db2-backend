@@ -15,12 +15,12 @@ public class TagController {
     private final TagService tagService;
 
     @GetMapping
-    public List<Tag> getTags(@RequestParam(required = false) Map<String, Object> params) {
+    public List<Tag> getTags(@RequestParam(required = false) Map<String, String> params) {
         return tagService.getAll(params);
     }
 
     @PutMapping
-    public Tag createOrUpdateTag(@RequestBody Tag tag, @RequestParam(required = false) Map<String, Object> params) {
+    public Tag createOrUpdateTag(@RequestBody Tag tag, @RequestParam(required = false) Map<String, String> params) {
         return tagService.addOrUpdate(tag, params);
     }
 

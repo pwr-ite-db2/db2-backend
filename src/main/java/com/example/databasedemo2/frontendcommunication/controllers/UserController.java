@@ -34,13 +34,13 @@ public class UserController {
 
     @isAdmin
     @GetMapping
-    public List<User> getUsers(@RequestParam(required = false) Map<String, Object> params) {
+    public List<User> getUsers(@RequestParam(required = false) Map<String, String> params) {
         return userService.getAll(params);
     }
 
     @isLoggedIn
     @PutMapping
-    public User updateUser(@RequestBody User user, @RequestParam(required = false) Map<String, Object> params) {
+    public User updateUser(@RequestBody User user, @RequestParam(required = false) Map<String, String> params) {
         return userService.update(user, params);
     }
 

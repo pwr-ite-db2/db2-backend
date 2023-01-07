@@ -15,12 +15,12 @@ public class StylesController {
     private final StylesService stylesService;
 
     @GetMapping
-    public List<Style> getStyles(@RequestParam(required = false) Map<String, Object> params) {
+    public List<Style> getStyles(@RequestParam(required = false) Map<String, String> params) {
         return stylesService.getAll(params);
     }
 
     @PutMapping
-    public Style createOrUpdateStyle(@RequestBody Style style, @RequestParam(required = false) Map<String, Object> params) {
+    public Style createOrUpdateStyle(@RequestBody Style style, @RequestParam(required = false) Map<String, String> params) {
         return stylesService.addOrUpdate(style, params);
     }
 

@@ -15,12 +15,12 @@ public class RoleController {
     private final RoleService roleService;
 
     @GetMapping
-    public List<Role> getRoles(@RequestParam(required = false) Map<String, Object> params) {
+    public List<Role> getRoles(@RequestParam(required = false) Map<String, String> params) {
         return roleService.getAll(params);
     }
 
     @PutMapping
-    public Role createOrUpdateRole(@RequestBody Role role, @RequestParam(required = false) Map<String, Object> params) {
+    public Role createOrUpdateRole(@RequestBody Role role, @RequestParam(required = false) Map<String, String> params) {
         return roleService.addOrUpdate(role, params);
     }
 

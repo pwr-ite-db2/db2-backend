@@ -1,6 +1,7 @@
 package com.example.databasedemo2.entitymanagement.services;
 
 import com.example.databasedemo2.entitymanagement.entities.User;
+import com.example.databasedemo2.entitymanagement.repositories.BaseRepository;
 import com.example.databasedemo2.entitymanagement.repositories.UserRepository;
 import com.example.databasedemo2.entitymanagement.repositories.readonly.ArticleWaitingForEditViewRepository;
 import com.example.databasedemo2.entitymanagement.repositories.readonly.ArticlesInEditViewRepository;
@@ -12,7 +13,6 @@ import com.example.databasedemo2.frontendcommunication.custom.EditorPaneResponse
 import com.example.databasedemo2.security.UserAuthenticationInfoImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -32,7 +32,7 @@ public class UserService extends BaseService <User, Integer> implements UserDeta
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserService(JpaRepository<User, Integer> repository, ArticlesInEditViewRepository inEditViewRepository,
+    public UserService(BaseRepository<User, Integer> repository, ArticlesInEditViewRepository inEditViewRepository,
                        ArticlesInMakingViewRepository inMakingViewRepository, UserAuthenticationInfoImpl userInfo,
                        ArticleWaitingForEditViewRepository waitingForEditViewRepository,
                        @Lazy PasswordEncoder passwordEncoder) {
@@ -73,7 +73,7 @@ public class UserService extends BaseService <User, Integer> implements UserDeta
     }
 
     @Override
-    public User addOrUpdate(User entity, Map<String, Object> params) {
+    public User addOrUpdate(User entity, Map<String, String> params) {
         return null;
     }
 
@@ -81,7 +81,7 @@ public class UserService extends BaseService <User, Integer> implements UserDeta
         return entity.getId() == 0 ? repository.save(entity) : null;
     }
 
-    public User update(User entity, Map<String, Object> params) {
+    public User update(User entity, Map<String, String> params) {
         if (entity.getId() == 0)
             return null;
 

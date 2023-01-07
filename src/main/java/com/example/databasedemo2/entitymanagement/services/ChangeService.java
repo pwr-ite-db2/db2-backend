@@ -1,15 +1,15 @@
 package com.example.databasedemo2.entitymanagement.services;
 
 import com.example.databasedemo2.entitymanagement.entities.Change;
+import com.example.databasedemo2.entitymanagement.repositories.BaseRepository;
 import com.example.databasedemo2.entitymanagement.repositories.ChangesRepository;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 public class ChangeService extends BaseService<Change, Integer> {
-    public ChangeService(JpaRepository<Change, Integer> repository) {
+    public ChangeService(BaseRepository<Change, Integer> repository) {
         super(repository);
     }
 

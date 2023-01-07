@@ -15,12 +15,12 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @GetMapping
-    public List<Category> getCategories(@RequestParam(required = false) Map<String, Object> params) {
+    public List<Category> getCategories(@RequestParam(required = false) Map<String, String> params) {
         return categoryService.getAll(params);
     }
 
     @PutMapping
-    public Category createOrUpdateCategory(@RequestBody Category category, @RequestParam(required = false) Map<String, Object> params) {
+    public Category createOrUpdateCategory(@RequestBody Category category, @RequestParam(required = false) Map<String, String> params) {
         return categoryService.addOrUpdate(category, params);
     }
 
