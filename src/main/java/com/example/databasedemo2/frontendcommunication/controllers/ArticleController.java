@@ -1,6 +1,7 @@
 package com.example.databasedemo2.frontendcommunication.controllers;
 
 import com.example.databasedemo2.entitymanagement.entities.Article;
+import com.example.databasedemo2.entitymanagement.entities.Change;
 import com.example.databasedemo2.entitymanagement.entities.Comment;
 import com.example.databasedemo2.entitymanagement.services.ArticleService;
 import com.example.databasedemo2.entitymanagement.views.MainPageView;
@@ -89,5 +90,11 @@ public class ArticleController {
     @GetMapping("/{id}/rollback")
     public Article rollbackArticle(@PathVariable("id") int articleId) {
         return articleService.rollbackArticle(articleId);
+    }
+
+    @isAdmin
+    @GetMapping("/changes")
+    public List<Change> getChanges (@RequestParam Map<String, String> params) {
+        return articleService.getChanges(params);
     }
 }

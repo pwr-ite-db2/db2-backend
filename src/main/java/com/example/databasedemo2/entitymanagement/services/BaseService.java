@@ -2,7 +2,6 @@ package com.example.databasedemo2.entitymanagement.services;
 
 import com.example.databasedemo2.entitymanagement.repositories.BaseRepository;
 import com.example.databasedemo2.exceptions.custom.ResourceNotFoundException;
-import com.example.databasedemo2.frontendcommunication.RequestFilterService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 
@@ -17,7 +16,7 @@ import java.util.Map;
 @Transactional
 public abstract class BaseService <T, ID> {
     protected final BaseRepository<T, ID> repository;
-    private final RequestFilterService<T, ID> filter;
+    protected final RequestFilterService<T, ID> filter;
 
     public BaseService(BaseRepository<T, ID> repository) {
         this.repository = repository;

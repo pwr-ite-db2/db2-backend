@@ -1,5 +1,6 @@
 package com.example.databasedemo2.entitymanagement.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
@@ -30,10 +31,12 @@ public class Change {
 
     @ManyToOne
     @JoinColumn (name = "article_id", referencedColumnName = "id")
+    @JsonIgnore
     private Article article;
 
     @ManyToOne
     @JoinColumn (name = "user_id", referencedColumnName = "id")
+    @JsonIgnore
     private User user;
 
     @ManyToOne

@@ -36,7 +36,14 @@ public class ArticleService extends BaseService<Article, Integer> {
     }
 
     public List<MainPageView> getMainPageContent() {
-        return mainPageViewRepository.findAll();
+        return getMainPageContentFromLastDays(3);
+    }
+
+    // optional for future use
+    @SuppressWarnings("SameParameterValue")
+    private List<MainPageView> getMainPageContentFromLastDays(int numOfDays) {
+        int daysInMillis = 1000 * 60 * 60 * 24 * numOfDays;
+        return mainPageViewRepository.findAllByReleaseDateAfter(new Date(System.currentTimeMillis() - daysInMillis));
     }
 
     public Article pickArticleForEditing(int articleId) throws ResourceNotFoundException {
@@ -200,5 +207,9 @@ public class ArticleService extends BaseService<Article, Integer> {
                 .build();
 
         changeService.addOrUpdate(change, Collections.emptyMap());
+    }
+
+    public List<Change> getChanges(Map<String, String> params) {
+        return changeService.getAll(params);
     }
 }

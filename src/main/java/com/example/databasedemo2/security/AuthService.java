@@ -9,9 +9,7 @@ import com.example.databasedemo2.frontendcommunication.custom.AuthRequest;
 import com.example.databasedemo2.frontendcommunication.custom.AuthResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -44,12 +42,14 @@ public class AuthService {
         return new AuthResponse(token);
     }
 
-    public AuthResponse authenticate(AuthRequest authRequest) throws BadCredentialsException {
+    public AuthResponse authenticate(AuthRequest authRequest) throws BadCredentialsException, LockedException, DisabledException {
         // throws exception if login or password are invalid
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getEmail(),
                 authRequest.getPassword()));
 
         User user = (User) userService.loadUserByUsername(authRequest.getEmail());
+
+
         String token = jwtService.generateToken(user);
         return new AuthResponse(token);
     }

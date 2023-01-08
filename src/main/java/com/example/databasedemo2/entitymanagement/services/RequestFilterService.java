@@ -1,4 +1,4 @@
-package com.example.databasedemo2.frontendcommunication;
+package com.example.databasedemo2.entitymanagement.services;
 
 import com.example.databasedemo2.entitymanagement.repositories.BaseRepository;
 import lombok.RequiredArgsConstructor;

@@ -15,6 +15,7 @@ public interface ArticleRepository extends BaseRepository<Article, Integer> {
             case "category" ->  findAllByCategory_Id(Integer.parseInt(val));
             case "author" -> findAllByAuthor_Name(val);
             case "tags" -> findByTags_IdIn(createTagsFromString(val));
+            case "title" -> findAllByTitleContaining(val);
             default -> Collections.emptySet();
         };
     }
@@ -22,6 +23,7 @@ public interface ArticleRepository extends BaseRepository<Article, Integer> {
     Set<Article> findAllByCategory_Id(int categoryId);
     Set<Article> findAllByAuthor_Name(String name);
     Set<Article> findByTags_IdIn(Collection<Integer> tags_id);
+    Set<Article> findAllByTitleContaining(String phrase);
 
     private Collection<Integer> createTagsFromString(String tags) {
         Set<Integer> returnSet = new HashSet<>();
