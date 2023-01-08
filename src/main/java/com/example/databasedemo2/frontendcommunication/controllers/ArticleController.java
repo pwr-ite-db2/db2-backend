@@ -68,13 +68,13 @@ public class ArticleController {
         return articleService.deleteCommentById(articleId, commentId);
     }
 
-    @isAuthor
+    @isAuthor @isAdmin
     @PutMapping("/submit")
     public Article submitArticleForEditing(@Valid @RequestBody Article article) {
         return articleService.submitArticleForEditing(article);
     }
 
-    @isEditor
+    @isEditor @isAdmin
     @PutMapping("/publish")
     public Article publishArticle(@Valid @RequestBody Article article) {
         return articleService.publishArticle(article);
@@ -86,7 +86,7 @@ public class ArticleController {
         return articleService.pickArticleForEditing(articleId);
     }
 
-    @isEditor
+    @isEditor @isAdmin
     @GetMapping("/{id}/rollback")
     public Article rollbackArticle(@PathVariable("id") int articleId) {
         return articleService.rollbackArticle(articleId);

@@ -1,7 +1,8 @@
 package com.example.databasedemo2.frontendcommunication.controllers;
 
-import com.example.databasedemo2.entitymanagement.services.CategoryService;
 import com.example.databasedemo2.entitymanagement.entities.Category;
+import com.example.databasedemo2.entitymanagement.services.CategoryService;
+import com.example.databasedemo2.security.anotations.isAdmin;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,6 +20,7 @@ public class CategoryController {
         return categoryService.getAll(params);
     }
 
+    @isAdmin
     @PutMapping
     public Category createOrUpdateCategory(@RequestBody Category category, @RequestParam(required = false) Map<String, String> params) {
         return categoryService.addOrUpdate(category, params);
@@ -29,6 +31,7 @@ public class CategoryController {
         return categoryService.getById(categoryId);
     }
 
+    @isAdmin
     @DeleteMapping("/{id}")
     public boolean deleteCategoryById(@PathVariable("id") int categoryId) {
         return categoryService.deleteById(categoryId);

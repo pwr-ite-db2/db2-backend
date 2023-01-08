@@ -101,6 +101,30 @@ public class ArticleService extends BaseService<Article, Integer> {
     }
 
     @Override
+    public List<Article> getAll(Map<String, String> params) {
+        if ((userInfo.isAnonymousUser() || userInfo.getAuthenticationInfo().getRole().getName().equals("CZYTELNIK"))
+                && (params.isEmpty() || !params.get("status").equals("4"))) {
+
+            params.put("status", "4");
+        }
+
+        return super.getAll(params);
+    }
+
+    @Override
+    public Article getById(Integer integer) throws ResourceNotFoundException {
+        Article article = super.getById(integer);
+
+        if ((userInfo.isAnonymousUser() || userInfo.getAuthenticationInfo().getRole().getName().equals("CZYTELNIK"))
+                && (!article.getArticleStatus().getName().equals("OPUBLIKOWANY"))) {
+
+            return null;
+        }
+
+        return article;
+    }
+
+    @Override
     public Article addOrUpdate(Article entity, Map<String, String> params) throws EntityNotFoundException, ResourceNotFoundException {
         // get user making changes to the article
         User currentUser = userInfo.getAuthenticationInfo();
