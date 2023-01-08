@@ -48,8 +48,6 @@ public class AuthService {
                 authRequest.getPassword()));
 
         User user = (User) userService.loadUserByUsername(authRequest.getEmail());
-
-
         String token = jwtService.generateToken(user);
         return new AuthResponse(token);
     }

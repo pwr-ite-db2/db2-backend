@@ -1,8 +1,8 @@
 package com.example.databasedemo2.entitymanagement.services;
 
 import com.example.databasedemo2.entitymanagement.entities.*;
+import com.example.databasedemo2.entitymanagement.repositories.ArticleRepository;
 import com.example.databasedemo2.entitymanagement.repositories.ArticleStatusRepository;
-import com.example.databasedemo2.entitymanagement.repositories.BaseRepository;
 import com.example.databasedemo2.entitymanagement.repositories.readonly.MainPageViewRepository;
 import com.example.databasedemo2.entitymanagement.views.MainPageView;
 import com.example.databasedemo2.exceptions.custom.ResourceNotFoundException;
@@ -25,7 +25,7 @@ public class ArticleService extends BaseService<Article, Integer> {
     private final ChangeService changeService;
 
     @Autowired
-    public ArticleService(BaseRepository<Article, Integer> repository, MainPageViewRepository mainPageViewRepository,
+    public ArticleService(ArticleRepository repository, MainPageViewRepository mainPageViewRepository,
                           UserAuthenticationInfoImpl userInfo, ArticleStatusRepository articleStatusRepository,
                           ChangeService changeService) {
         super(repository);

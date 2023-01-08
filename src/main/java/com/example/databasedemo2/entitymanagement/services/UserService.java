@@ -1,7 +1,6 @@
 package com.example.databasedemo2.entitymanagement.services;
 
 import com.example.databasedemo2.entitymanagement.entities.User;
-import com.example.databasedemo2.entitymanagement.repositories.BaseRepository;
 import com.example.databasedemo2.entitymanagement.repositories.UserRepository;
 import com.example.databasedemo2.entitymanagement.repositories.readonly.ArticleWaitingForEditViewRepository;
 import com.example.databasedemo2.entitymanagement.repositories.readonly.ArticlesInEditViewRepository;
@@ -32,7 +31,7 @@ public class UserService extends BaseService <User, Integer> implements UserDeta
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserService(BaseRepository<User, Integer> repository, ArticlesInEditViewRepository inEditViewRepository,
+    public UserService(UserRepository repository, ArticlesInEditViewRepository inEditViewRepository,
                        ArticlesInMakingViewRepository inMakingViewRepository, UserAuthenticationInfoImpl userInfo,
                        ArticleWaitingForEditViewRepository waitingForEditViewRepository,
                        @Lazy PasswordEncoder passwordEncoder) {

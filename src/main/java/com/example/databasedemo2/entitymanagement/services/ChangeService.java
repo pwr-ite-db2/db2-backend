@@ -1,7 +1,6 @@
 package com.example.databasedemo2.entitymanagement.services;
 
 import com.example.databasedemo2.entitymanagement.entities.Change;
-import com.example.databasedemo2.entitymanagement.repositories.BaseRepository;
 import com.example.databasedemo2.entitymanagement.repositories.ChangesRepository;
 import org.springframework.stereotype.Service;
 
@@ -11,7 +10,7 @@ import java.util.Map;
 
 @Service
 public class ChangeService extends BaseService<Change, Integer> {
-    public ChangeService(BaseRepository<Change, Integer> repository) {
+    public ChangeService(ChangesRepository repository) {
         super(repository);
     }
 
