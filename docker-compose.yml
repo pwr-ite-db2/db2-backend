@@ -1,0 +1,46 @@
+version: "3.3"
+
+services:
+  database:
+    image: postgres:14-alpine
+    container_name: bazy-danych-postgresql-database
+    networks:
+      - app-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: projekt
+      POSTGRES_PASSWORD: pwr
+      POSTGRES_DB: projekt_db
+    volumes:
+      - projekt-db-2-data:/var/lib/postgresql
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    ports:
+      - "127.0.0.1:5433:5432"
+    expose:
+      - 5432
+    healthcheck:
+      test: [ "CMD", "nc", "-z", "localhost:5433" ]
+      interval: 10s
+      timeout: 1s
+      retries: 3
+
+  app:
+    container_name: bazy-danych-server-side-app
+    build: ./
+    image: bazy-danych-server-side-app:latest
+    networks:
+      - app-db
+    ports:
+      - "443:443"
+    depends_on:
+      - database
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://database:5432/projekt_db
+      - SPRING_DATASOURCE_USER=projekt
+      - SPRING_DATASOURCE_PASSWORD=pwr
+
+networks:
+  app-db:
+
+volumes:
+  projekt-db-2-data:
