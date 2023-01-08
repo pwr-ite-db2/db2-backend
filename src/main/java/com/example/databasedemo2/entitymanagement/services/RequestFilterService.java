@@ -14,12 +14,19 @@ public class RequestFilterService <T, ID> {
             return repository.findAll();
 
         Set<T> resultSet = new HashSet<>();
+        boolean sum = Boolean.parseBoolean(params.getOrDefault("sum", "false"));
+        boolean first = true;
 
         for (Map.Entry<String, String> keyVal : params.entrySet()) {
             String key = keyVal.getKey();
             String val = keyVal.getValue();
             Set<T> partialSet = repository.findAllWithParam(key, val);
-            resultSet.addAll(partialSet);
+            if (Boolean.logicalOr(sum, first)){
+                resultSet.addAll(partialSet);
+                first = false;
+            }
+            else
+                resultSet.retainAll(partialSet);
         }
 
         return new LinkedList<>(resultSet);

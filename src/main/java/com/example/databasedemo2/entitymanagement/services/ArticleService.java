@@ -102,8 +102,8 @@ public class ArticleService extends BaseService<Article, Integer> {
 
     @Override
     public List<Article> getAll(Map<String, String> params) {
-        if ((userInfo.isAnonymousUser() || userInfo.getAuthenticationInfo().getRole().getName().equals("CZYTELNIK"))
-                && (params.isEmpty() || !params.get("status").equals("4"))) {
+        if ((userInfo.isAnonymousUser() || userInfo.isClient())
+                && (params.isEmpty() || !params.getOrDefault("status", "").equals("4"))) {
 
             params.put("status", "4");
         }
@@ -115,7 +115,7 @@ public class ArticleService extends BaseService<Article, Integer> {
     public Article getById(Integer integer) throws ResourceNotFoundException {
         Article article = super.getById(integer);
 
-        if ((userInfo.isAnonymousUser() || userInfo.getAuthenticationInfo().getRole().getName().equals("CZYTELNIK"))
+        if ((userInfo.isAnonymousUser() || userInfo.isClient())
                 && (!article.getArticleStatus().getName().equals("OPUBLIKOWANY"))) {
 
             return null;

@@ -16,4 +16,12 @@ public class UserAuthenticationInfoImpl implements UserAuthenticationInfo <User>
     public boolean isAnonymousUser() {
         return SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken;
     }
+
+    public boolean isAdmin() {
+        return getAuthenticationInfo().getRole().getName().equals("ADMIN");
+    }
+
+    public boolean isClient() {
+        return getAuthenticationInfo().getRole().getName().equals("CZYTELNIK");
+    }
 }

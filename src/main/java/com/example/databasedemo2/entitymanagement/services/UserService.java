@@ -85,7 +85,7 @@ public class UserService extends BaseService <User, Integer> implements UserDeta
             return null;
 
         User currentUser = userInfo.getAuthenticationInfo();
-        boolean isAdmin = currentUser.getRole().getName().equals("ADMIN");
+        boolean isAdmin = userInfo.isAdmin();
 
         // can't change these fields unless you are an admin
         if (!isAdmin) {
