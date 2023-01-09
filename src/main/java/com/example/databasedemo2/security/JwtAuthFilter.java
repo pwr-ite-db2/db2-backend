@@ -50,7 +50,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         } catch (JwtException e) {
             response.getWriter().println(new ObjectMapper().writeValueAsString(Map.of("cause", e.getMessage())));
             response.setStatus(HttpStatus.BAD_REQUEST.value());
-            filterChain.doFilter(request, response);    // pass execution to the next filter
             return;
         }
 
@@ -71,6 +70,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             } catch (EntityNotFoundException e) {
                 response.getWriter().println(new ObjectMapper().writeValueAsString(Map.of("cause", e.getMessage())));
                 response.setStatus(HttpStatus.BAD_REQUEST.value());
+                return;
             }
         }
 
