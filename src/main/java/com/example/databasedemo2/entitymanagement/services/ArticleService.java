@@ -37,13 +37,15 @@ public class ArticleService extends BaseService<Article, Integer> {
     }
 
     public List<MainPageView> getMainPageContent(String numOfDays) {
+        System.out.println(numOfDays);
         return getMainPageContentFromLastDays(Integer.parseInt(numOfDays));
     }
 
     // optional for future use
     @SuppressWarnings("SameParameterValue")
     private List<MainPageView> getMainPageContentFromLastDays(int numOfDays) {
-        int daysInMillis = 1000 * 60 * 60 * 24 * numOfDays;
+        long daysInMillis = 1000L * 60 * 60 * 24 * numOfDays;
+        System.out.println(new Date(System.currentTimeMillis() - daysInMillis));
         return mainPageViewRepository.findAllByReleaseDateAfter(new Date(System.currentTimeMillis() - daysInMillis));
     }
 

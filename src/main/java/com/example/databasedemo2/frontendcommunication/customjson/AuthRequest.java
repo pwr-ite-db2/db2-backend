@@ -1,4 +1,4 @@
-package com.example.databasedemo2.frontendcommunication.custom;
+package com.example.databasedemo2.frontendcommunication.customjson;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

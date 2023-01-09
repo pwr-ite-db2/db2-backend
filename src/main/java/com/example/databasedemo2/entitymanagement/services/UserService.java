@@ -8,7 +8,7 @@ import com.example.databasedemo2.entitymanagement.repositories.readonly.Articles
 import com.example.databasedemo2.entitymanagement.views.ArticleInEditView;
 import com.example.databasedemo2.entitymanagement.views.ArticleInMakingView;
 import com.example.databasedemo2.entitymanagement.views.ArticleWaitingForEditView;
-import com.example.databasedemo2.frontendcommunication.custom.EditorPaneResponse;
+import com.example.databasedemo2.frontendcommunication.customjson.EditorPaneResponse;
 import com.example.databasedemo2.security.UserAuthenticationInfoImpl;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;

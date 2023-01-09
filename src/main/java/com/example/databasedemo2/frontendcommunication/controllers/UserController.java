@@ -3,7 +3,7 @@ package com.example.databasedemo2.frontendcommunication.controllers;
 import com.example.databasedemo2.entitymanagement.entities.User;
 import com.example.databasedemo2.entitymanagement.services.UserService;
 import com.example.databasedemo2.entitymanagement.views.ArticleInMakingView;
-import com.example.databasedemo2.frontendcommunication.custom.EditorPaneResponse;
+import com.example.databasedemo2.frontendcommunication.customjson.EditorPaneResponse;
 import com.example.databasedemo2.security.anotations.isAdmin;
 import com.example.databasedemo2.security.anotations.isAuthor;
 import com.example.databasedemo2.security.anotations.isEditor;

@@ -1,4 +1,4 @@
-package com.example.databasedemo2.frontendcommunication.custom;
+package com.example.databasedemo2.frontendcommunication.customjson;
 
 import com.example.databasedemo2.entitymanagement.views.ArticleInEditView;
 import com.example.databasedemo2.entitymanagement.views.ArticleWaitingForEditView;

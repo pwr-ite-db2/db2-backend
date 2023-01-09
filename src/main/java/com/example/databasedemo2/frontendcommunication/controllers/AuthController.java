@@ -2,8 +2,8 @@ package com.example.databasedemo2.frontendcommunication.controllers;
 
 import com.example.databasedemo2.security.anotations.isAdmin;
 import com.example.databasedemo2.entitymanagement.entities.User;
-import com.example.databasedemo2.frontendcommunication.custom.AuthRequest;
-import com.example.databasedemo2.frontendcommunication.custom.AuthResponse;
+import com.example.databasedemo2.frontendcommunication.customjson.AuthRequest;
+import com.example.databasedemo2.frontendcommunication.customjson.AuthResponse;
 import com.example.databasedemo2.security.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
