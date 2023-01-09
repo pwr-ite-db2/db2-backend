@@ -29,8 +29,10 @@ public class AuthService {
         if (userService.existsByEmail(newUser.getEmail()))
             throw new RegistrationException();
 
+        // encode password
         newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
 
+        // check if user has admin privileges
         if (!isAdmin || newUser.getRole() == null) {
             Role defaultRole = roleService.getDefaultRole();
             newUser.setRole(defaultRole);

@@ -36,8 +36,8 @@ public class ArticleService extends BaseService<Article, Integer> {
         this.changeService = changeService;
     }
 
-    public List<MainPageView> getMainPageContent() {
-        return getMainPageContentFromLastDays(3);
+    public List<MainPageView> getMainPageContent(String numOfDays) {
+        return getMainPageContentFromLastDays(Integer.parseInt(numOfDays));
     }
 
     // optional for future use
@@ -71,6 +71,7 @@ public class ArticleService extends BaseService<Article, Integer> {
                 || article.getArticleStatus().getName().equals("WYCOFANY")) {
 
             article.setArticleStatus(newStatus);
+            article.setRemovedAt(null);
             article = addOrUpdate(article, Map.of("note", "Artykuł opublikowany na portal"));
             return article;
         }
@@ -96,6 +97,7 @@ public class ArticleService extends BaseService<Article, Integer> {
         User currentUser = userInfo.getAuthenticationInfo();
 
         article.setArticleStatus(newStatus);
+        article.setRemovedAt(new Date());
         article = repository.save(article);
         logChanges(articleId, currentUser, "Artykuł wycofany", newStatus);
         return article;
@@ -158,7 +160,8 @@ public class ArticleService extends BaseService<Article, Integer> {
 
             if (entity.getComments() == null) {
                 // restore comments
-                List<Comment> comments = repository.findById(entity.getId()).orElseThrow(ResourceNotFoundException::new).getComments();
+                Article articleOld = repository.findById(entity.getId()).orElseThrow(ResourceNotFoundException::new);
+                List<Comment> comments = articleOld.getComments();
                 entity.setComments(comments);
             }
 

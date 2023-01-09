@@ -47,7 +47,7 @@ public class UserService extends BaseService <User, Integer> implements UserDeta
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException, EntityNotFoundException {
-        return ((UserRepository) repository).findByEmail(username).orElseThrow(EntityNotFoundException::new);
+        return ((UserRepository) repository).findByEmail(username).orElseThrow(() -> new UsernameNotFoundException("Username not found!"));
     }
 
     public boolean existsByEmail(String email) {

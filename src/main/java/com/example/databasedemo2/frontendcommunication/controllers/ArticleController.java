@@ -20,8 +20,8 @@ public class ArticleController {
     private final ArticleService articleService;
 
     @GetMapping("/main-page")
-    public List<MainPageView> getMainPageContent() {
-        return articleService.getMainPageContent();
+    public List<MainPageView> getMainPageContent(@RequestParam(defaultValue = "7") String days) {
+        return articleService.getMainPageContent(days);
     }
 
     @GetMapping
@@ -68,13 +68,13 @@ public class ArticleController {
         return articleService.deleteCommentById(articleId, commentId);
     }
 
-    @isAuthor @isAdmin
+    @isAuthor
     @PutMapping("/submit")
     public Article submitArticleForEditing(@Valid @RequestBody Article article) {
         return articleService.submitArticleForEditing(article);
     }
 
-    @isEditor @isAdmin
+    @isEditor
     @PutMapping("/publish")
     public Article publishArticle(@Valid @RequestBody Article article) {
         return articleService.publishArticle(article);
@@ -86,7 +86,7 @@ public class ArticleController {
         return articleService.pickArticleForEditing(articleId);
     }
 
-    @isEditor @isAdmin
+    @isEditor
     @GetMapping("/{id}/rollback")
     public Article rollbackArticle(@PathVariable("id") int articleId) {
         return articleService.rollbackArticle(articleId);
