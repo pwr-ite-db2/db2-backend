@@ -457,6 +457,7 @@ INSERT INTO roles (id, name) VALUES (DEFAULT, 'AUTOR');     -- id = 1
 INSERT INTO roles (id, name) VALUES (DEFAULT, 'REDAKTOR');   -- id = 2
 INSERT INTO roles (id, name) VALUES (DEFAULT, 'ADMIN');      -- id = 3
 INSERT INTO roles (id, name) VALUES (DEFAULT, 'CZYTELNIK');  -- id = 4
+INSERT INTO roles (id, name) VALUES (DEFAULT, 'ZAWIESZONY');  -- id = 5
 
 -- statusy
 INSERT INTO article_statuses (id, name) VALUES (DEFAULT, 'UTWORZONY');                -- id = 1

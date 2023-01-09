@@ -5,6 +5,7 @@ import com.example.databasedemo2.entitymanagement.repositories.ArticleRepository
 import com.example.databasedemo2.entitymanagement.repositories.ArticleStatusRepository;
 import com.example.databasedemo2.entitymanagement.repositories.readonly.MainPageViewRepository;
 import com.example.databasedemo2.entitymanagement.views.MainPageView;
+import com.example.databasedemo2.exceptions.custom.AuthorizationException;
 import com.example.databasedemo2.exceptions.custom.ResourceNotFoundException;
 import com.example.databasedemo2.security.UserAuthenticationInfoImpl;
 import jakarta.persistence.EntityNotFoundException;
@@ -106,19 +107,20 @@ public class ArticleService extends BaseService<Article, Integer> {
                 && (params.isEmpty() || !params.getOrDefault("status", "").equals("4"))) {
 
             params.put("status", "4");
+            params.put("sum", "false");
         }
 
         return super.getAll(params);
     }
 
     @Override
-    public Article getById(Integer integer) throws ResourceNotFoundException {
+    public Article getById(Integer integer) throws ResourceNotFoundException, AuthorizationException{
         Article article = super.getById(integer);
 
         if ((userInfo.isAnonymousUser() || userInfo.isClient())
                 && (!article.getArticleStatus().getName().equals("OPUBLIKOWANY"))) {
 
-            return null;
+            throw new AuthorizationException();
         }
 
         return article;

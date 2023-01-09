@@ -1,12 +1,14 @@
 package com.example.databasedemo2.security;
 
 import com.example.databasedemo2.entitymanagement.services.UserService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
@@ -40,7 +43,15 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         token = jwtHeader.substring(7); // start of the JWT
-        username = jwtService.getUsername(token);   // get username (email) from the token
+
+        try {
+            username = jwtService.getUsername(token);   // get username (email) from the token, throws JWT exception if token is invalid
+        } catch (JwtException e) {
+            response.getWriter().println(new ObjectMapper().writeValueAsString(Map.of("cause", e.getMessage())));
+            response.setStatus(HttpStatus.BAD_REQUEST.value());
+            return;
+        }
+
 
         // check if user is already authenticated
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {

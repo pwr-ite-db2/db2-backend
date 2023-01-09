@@ -1,5 +1,6 @@
 package com.example.databasedemo2.exceptions;
 
+import com.example.databasedemo2.exceptions.custom.AuthorizationException;
 import com.example.databasedemo2.exceptions.custom.RegistrationException;
 import com.example.databasedemo2.exceptions.custom.ResourceNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
@@ -56,6 +57,14 @@ public class ExceptionHandlers {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(EntityNotFoundException.class)
     public Map<String, String> handleEntityNotFoundExceptions(EntityNotFoundException e) {
+        Map<String, String> errors = new HashMap<>();
+        errors.put("cause", e.getMessage());
+        return errors;
+    }
+
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ExceptionHandler(AuthorizationException.class)
+    public Map<String, String> handleAuthorizationExceptions(AuthorizationException e) {
         Map<String, String> errors = new HashMap<>();
         errors.put("cause", e.getMessage());
         return errors;

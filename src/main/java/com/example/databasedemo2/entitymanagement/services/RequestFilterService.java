@@ -14,7 +14,8 @@ public class RequestFilterService <T, ID> {
             return repository.findAll();
 
         Set<T> resultSet = new HashSet<>();
-        boolean sum = Boolean.parseBoolean(params.getOrDefault("sum", "false"));
+        boolean sum = Boolean.parseBoolean(params.getOrDefault("sum", "false"));    //defaults to false
+        params.remove("sum");
         boolean first = true;
 
         for (Map.Entry<String, String> keyVal : params.entrySet()) {

@@ -40,7 +40,7 @@ public class JwtService {
         return getClaim(token, Claims::getSubject);
     }
 
-    public Date getExpirationDate(String token) {
+    public Date getExpirationDate(String token) throws JwtException {
         return getClaim(token, Claims::getExpiration);
     }
 
@@ -63,13 +63,13 @@ public class JwtService {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public boolean isValidToken(String token, UserDetails userDetails) {
+    public boolean isValidToken(String token, UserDetails userDetails) throws JwtException {
         final String username = getUsername(token);
         return (username.equals(userDetails.getUsername())) &&
                 (!isExpired(token));
     }
 
-    private boolean isExpired(String token) {
+    private boolean isExpired(String token) throws JwtException {
         return getExpirationDate(token).before(new Date());
     }
 }
