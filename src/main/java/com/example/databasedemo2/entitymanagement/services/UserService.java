@@ -10,6 +10,7 @@ import com.example.databasedemo2.entitymanagement.views.ArticleInMakingView;
 import com.example.databasedemo2.entitymanagement.views.ArticleWaitingForEditView;
 import com.example.databasedemo2.frontendcommunication.custom.EditorPaneResponse;
 import com.example.databasedemo2.security.UserAuthenticationInfoImpl;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -45,8 +46,8 @@ public class UserService extends BaseService <User, Integer> implements UserDeta
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return ((UserRepository) repository).findByEmail(username).orElseThrow();
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException, EntityNotFoundException {
+        return ((UserRepository) repository).findByEmail(username).orElseThrow(EntityNotFoundException::new);
     }
 
     public boolean existsByEmail(String email) {

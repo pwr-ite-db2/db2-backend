@@ -3,6 +3,7 @@ package com.example.databasedemo2.security;
 import com.example.databasedemo2.entitymanagement.services.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.JwtException;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -31,7 +32,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             @NonNull HttpServletRequest request,
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain
-    ) throws ServletException, IOException, JwtException {
+    ) throws ServletException, IOException, JwtException, EntityNotFoundException {
         final String jwtHeader = request.getHeader("Authorization");
         final String token;
         final String username;
@@ -49,22 +50,27 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         } catch (JwtException e) {
             response.getWriter().println(new ObjectMapper().writeValueAsString(Map.of("cause", e.getMessage())));
             response.setStatus(HttpStatus.BAD_REQUEST.value());
+            filterChain.doFilter(request, response);    // pass execution to the next filter
             return;
         }
-
 
         // check if user is already authenticated
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             // get user from database, throws exception if user doesn't exist
-            UserDetails user = userService.loadUserByUsername(username);
+            try {
+                UserDetails user = userService.loadUserByUsername(username);
 
-            // check if token is valid
-            if (jwtService.isValidToken(token, user)) {
-                // update SecurityContextHolder
-                UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                        user, null, user.getAuthorities());
-                authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+                // check if token is valid
+                if (jwtService.isValidToken(token, user)) {
+                    // update SecurityContextHolder
+                    UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                            user, null, user.getAuthorities());
+                    authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+                }
+            } catch (EntityNotFoundException e) {
+                response.getWriter().println(new ObjectMapper().writeValueAsString(Map.of("cause", e.getMessage())));
+                response.setStatus(HttpStatus.BAD_REQUEST.value());
             }
         }
 
