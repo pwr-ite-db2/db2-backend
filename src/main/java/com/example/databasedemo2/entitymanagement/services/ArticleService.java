@@ -2,7 +2,6 @@ package com.example.databasedemo2.entitymanagement.services;
 
 import com.example.databasedemo2.entitymanagement.entities.*;
 import com.example.databasedemo2.entitymanagement.repositories.ArticleRepository;
-import com.example.databasedemo2.entitymanagement.repositories.ArticleStatusRepository;
 import com.example.databasedemo2.entitymanagement.repositories.readonly.MainPageViewRepository;
 import com.example.databasedemo2.entitymanagement.views.MainPageView;
 import com.example.databasedemo2.exceptions.custom.AuthorizationException;
@@ -21,18 +20,18 @@ public class ArticleService extends BaseService<Article, Integer> {
 
     private final UserAuthenticationInfoImpl userInfo;
 
-    private final ArticleStatusRepository articleStatusRepository;
+    private final ArticleStatusService articleStatusService;
 
     private final ChangeService changeService;
 
     @Autowired
     public ArticleService(ArticleRepository repository, MainPageViewRepository mainPageViewRepository,
-                          UserAuthenticationInfoImpl userInfo, ArticleStatusRepository articleStatusRepository,
+                          UserAuthenticationInfoImpl userInfo, ArticleStatusService articleStatusService,
                           ChangeService changeService) {
         super(repository);
         this.mainPageViewRepository = mainPageViewRepository;
         this.userInfo = userInfo;
-        this.articleStatusRepository = articleStatusRepository;
+        this.articleStatusService = articleStatusService;
         this.changeService = changeService;
     }
 
@@ -51,7 +50,7 @@ public class ArticleService extends BaseService<Article, Integer> {
 
     public Article pickArticleForEditing(int articleId) throws ResourceNotFoundException {
         Article article = getById(articleId);
-        ArticleStatus newStatus = articleStatusRepository.findByName("REDAGOWANY").orElseThrow(ResourceNotFoundException::new);
+        ArticleStatus newStatus = articleStatusService.findByName("REDAGOWANY");
         User currentUser = userInfo.getAuthenticationInfo();
 
         if (article.getArticleStatus().getName().equals("OCZEKUJĄCY NA REDAKCJĘ")
@@ -67,7 +66,7 @@ public class ArticleService extends BaseService<Article, Integer> {
     }
 
     public Article publishArticle(Article article) {
-        ArticleStatus newStatus = articleStatusRepository.findByName("OPUBLIKOWANY").orElseThrow(ResourceNotFoundException::new);
+        ArticleStatus newStatus = articleStatusService.findByName("OPUBLIKOWANY");
 
         if (article.getArticleStatus().getName().equals("REDAGOWANY")
                 || article.getArticleStatus().getName().equals("WYCOFANY")) {
@@ -82,7 +81,7 @@ public class ArticleService extends BaseService<Article, Integer> {
     }
 
     public Article submitArticleForEditing(Article article) {
-        ArticleStatus newStatus = articleStatusRepository.findByName("OCZEKUJĄCY NA REDAKCJĘ").orElseThrow(ResourceNotFoundException::new);
+        ArticleStatus newStatus = articleStatusService.findByName("OCZEKUJĄCY NA REDAKCJĘ");
 
         if (article.getArticleStatus().getName().equals("UTWORZONY")) {
             article.setArticleStatus(newStatus);
@@ -95,7 +94,7 @@ public class ArticleService extends BaseService<Article, Integer> {
 
     public Article rollbackArticle(int articleId) {
         Article article = getById(articleId);
-        ArticleStatus newStatus = articleStatusRepository.findByName("WYCOFANY").orElseThrow(ResourceNotFoundException::new);
+        ArticleStatus newStatus = articleStatusService.findByName("WYCOFANY");
         User currentUser = userInfo.getAuthenticationInfo();
 
         article.setArticleStatus(newStatus);
@@ -117,21 +116,23 @@ public class ArticleService extends BaseService<Article, Integer> {
         return super.getAll(params);
     }
 
-    @Override
-    public Article getById(Integer integer) throws ResourceNotFoundException, AuthorizationException{
-        Article article = super.getById(integer);
+    public Article readArticle(int articleId) throws ResourceNotFoundException, AuthorizationException {
+        Article article = super.getById(articleId);
 
+        // check if article is published
         if ((userInfo.isAnonymousUser() || userInfo.isClient())
                 && (!article.getArticleStatus().getName().equals("OPUBLIKOWANY"))) {
 
             throw new AuthorizationException();
         }
 
-        return article;
+        int viewCount = article.getViewCount();
+        article.setViewCount(viewCount + 1);
+        return repository.save(article);
     }
 
     @Override
-    public Article addOrUpdate(Article entity, Map<String, String> params) throws EntityNotFoundException, ResourceNotFoundException {
+    public Article addOrUpdate(Article entity, Map<String, String> params) throws EntityNotFoundException {
         // get user making changes to the article
         User currentUser = userInfo.getAuthenticationInfo();
 
@@ -144,7 +145,7 @@ public class ArticleService extends BaseService<Article, Integer> {
 
             // set default status for new articles
             if (entity.getArticleStatus() == null) {
-                ArticleStatus defaultStatus = articleStatusRepository.findByName("UTWORZONY").orElseThrow(ResourceNotFoundException::new);
+                ArticleStatus defaultStatus = articleStatusService.getDefaultStatus();
                 entity.setArticleStatus(defaultStatus);
             }
 
@@ -178,8 +179,15 @@ public class ArticleService extends BaseService<Article, Integer> {
         return super.addOrUpdate(entity, params);
     }
 
-    public List<Comment> getAllCommentsByArticleId(int articleId) throws ResourceNotFoundException {
+    public List<Comment> getAllCommentsByArticleId(int articleId) throws ResourceNotFoundException, AuthorizationException {
         Article article = repository.findById(articleId).orElseThrow(ResourceNotFoundException::new);
+
+        // check if article is published
+        if ((userInfo.isAnonymousUser() || userInfo.isClient())
+                && (!article.getArticleStatus().getName().equals("OPUBLIKOWANY"))) {
+
+            throw new AuthorizationException();
+        }
 
         List<Comment> comments = article.getComments();
         List<Comment> commentsCopy = new LinkedList<>();
@@ -192,8 +200,16 @@ public class ArticleService extends BaseService<Article, Integer> {
         return commentsCopy;
     }
 
-    public Comment getCommentByArticleIdAndCommentId(int articleId, int commentId) throws ResourceNotFoundException {
+    public Comment getCommentByArticleIdAndCommentId(int articleId, int commentId) throws ResourceNotFoundException, AuthorizationException {
         Article article = repository.findById(articleId).orElseThrow(ResourceNotFoundException::new);
+
+        // check if article is published
+        if ((userInfo.isAnonymousUser() || userInfo.isClient())
+                && (!article.getArticleStatus().getName().equals("OPUBLIKOWANY"))) {
+
+            throw new AuthorizationException();
+        }
+
         List<Comment> articleComments = article.getComments();
 
         for (Comment c : articleComments) {
@@ -204,8 +220,15 @@ public class ArticleService extends BaseService<Article, Integer> {
         throw new ResourceNotFoundException();
     }
 
-    public Comment addOrUpdateComment(int articleId, Comment comment) {
+    public Comment addOrUpdateComment(int articleId, Comment comment) throws ResourceNotFoundException, AuthorizationException {
         Article article = repository.findById(articleId).orElseThrow(ResourceNotFoundException::new);
+
+        // check if article is published
+        if ((userInfo.isAnonymousUser() || userInfo.isClient())
+                && (!article.getArticleStatus().getName().equals("OPUBLIKOWANY"))) {
+
+            throw new AuthorizationException();
+        }
 
         if (comment.getId() == 0) {
             User author = userInfo.getAuthenticationInfo();
@@ -227,6 +250,10 @@ public class ArticleService extends BaseService<Article, Integer> {
         return comments.removeIf(comment -> (comment.getId() == commentId));
     }
 
+    public List<Change> getChanges(Map<String, String> params) {
+        return changeService.getAll(params);
+    }
+
     private void logChanges(int articleId, User user, String note, ArticleStatus status) {
         Change change = Change.builder()
                 .article(Article.builder().id(articleId).build())
@@ -238,9 +265,5 @@ public class ArticleService extends BaseService<Article, Integer> {
                 .build();
 
         changeService.addOrUpdate(change, Collections.emptyMap());
-    }
-
-    public List<Change> getChanges(Map<String, String> params) {
-        return changeService.getAll(params);
     }
 }

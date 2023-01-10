@@ -73,15 +73,17 @@ public class UserService extends BaseService <User, Integer> implements UserDeta
     }
 
     @Override
-    public User addOrUpdate(User entity, Map<String, String> params) {
+    public User addOrUpdate(User entity, Map<String, String> params) throws EntityNotFoundException {
         return null;
     }
 
     public User add(User entity) {
+        // to update User use update method
         return entity.getId() == 0 ? repository.save(entity) : null;
     }
 
     public User update(User entity, Map<String, String> params) {
+        // to create new User use add method
         if (entity.getId() == 0)
             return null;
 

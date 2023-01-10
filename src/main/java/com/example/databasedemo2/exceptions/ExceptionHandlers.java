@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -65,6 +66,14 @@ public class ExceptionHandlers {
     @ResponseStatus(HttpStatus.FORBIDDEN)
     @ExceptionHandler(AuthorizationException.class)
     public Map<String, String> handleAuthorizationExceptions(AuthorizationException e) {
+        Map<String, String> errors = new HashMap<>();
+        errors.put("cause", e.getMessage());
+        return errors;
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(SQLException.class)
+    public Map<String, String> handleSQLExceptions(SQLException e) {
         Map<String, String> errors = new HashMap<>();
         errors.put("cause", e.getMessage());
         return errors;

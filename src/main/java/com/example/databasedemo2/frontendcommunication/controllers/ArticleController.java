@@ -35,9 +35,15 @@ public class ArticleController {
         return articleService.addOrUpdate(article, params);
     }
 
+    @isEmployee
     @GetMapping("/{id}")
     public Article getArticleById(@PathVariable("id") int articleId) {
         return articleService.getById(articleId);
+    }
+
+    @GetMapping("/{id}/read")
+    public Article readArticle(@PathVariable("id") int articleId) {
+        return articleService.readArticle(articleId);
     }
 
     @isAdmin
@@ -92,7 +98,7 @@ public class ArticleController {
         return articleService.rollbackArticle(articleId);
     }
 
-    @isAdmin
+    @isEmployee
     @GetMapping("/changes")
     public List<Change> getChanges (@RequestParam Map<String, String> params) {
         return articleService.getChanges(params);

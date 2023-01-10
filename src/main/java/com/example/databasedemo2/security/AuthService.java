@@ -24,8 +24,9 @@ public class AuthService {
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    private final UserAuthenticationInfoImpl userInfo;
 
-    public AuthResponse register(User newUser, boolean isAdmin) throws RegistrationException {
+    public AuthResponse register(User newUser) throws RegistrationException {
         if (userService.existsByEmail(newUser.getEmail()))
             throw new RegistrationException();
 
@@ -33,7 +34,7 @@ public class AuthService {
         newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
 
         // check if user has admin privileges
-        if (!isAdmin || newUser.getRole() == null) {
+        if (userInfo.isAnonymousUser() || !userInfo.isAdmin() || newUser.getRole() == null) {
             Role defaultRole = roleService.getDefaultRole();
             newUser.setRole(defaultRole);
         }
