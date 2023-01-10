@@ -83,7 +83,8 @@ public class ArticleService extends BaseService<Article, Integer> {
     public Article submitArticleForEditing(Article article) {
         ArticleStatus newStatus = articleStatusService.findByName("OCZEKUJĄCY NA REDAKCJĘ");
 
-        if (article.getArticleStatus().getName().equals("UTWORZONY")) {
+        // if status == null -> new article, submitted without previous save
+        if (article.getArticleStatus() == null || article.getArticleStatus().getName().equals("UTWORZONY")) {
             article.setArticleStatus(newStatus);
             article = addOrUpdate(article, Map.of("note", "Artykuł oddany do redakcji"));
             return article;
@@ -149,16 +150,22 @@ public class ArticleService extends BaseService<Article, Integer> {
                 entity.setArticleStatus(defaultStatus);
             }
 
-            // new article with chapters
-            if (entity.getChapters() != null) {
-                List<Chapter> chaptersCopy = new LinkedList<>(entity.getChapters());
-                entity.setChapters(null);
+            // new article with new tags -> persist article entity first
+            if (entity.getTags().stream().anyMatch(tag -> tag.getId() == 0)) {
+                List<Chapter> chaptersCopy = null;
+
+                // new article with chapters
+                if (entity.getChapters() != null) {
+                    chaptersCopy = new LinkedList<>(entity.getChapters());
+                    entity.setChapters(null);
+                }
 
                 entity = repository.save(entity);
 
                 entity.setChapters(chaptersCopy);
             }
         }
+        // both comments and chapters are enabled for orphan removal, so they need to be restored
         else if (entity.getId() != 0) {
 
             if (entity.getComments() == null) {
@@ -168,15 +175,20 @@ public class ArticleService extends BaseService<Article, Integer> {
                 entity.setComments(comments);
             }
 
+            if (entity.getChapters() == null)
+                entity.setChapters(Collections.emptyList());
         }
 
-        for (Chapter chapter : entity.getChapters()) {
-            chapter.setArticle(entity);
+        if (entity.getChapters() != null) {
+            for (Chapter chapter : entity.getChapters()) {
+                chapter.setArticle(entity);
+            }
         }
 
+        entity = super.addOrUpdate(entity, params);
         String changesNote = params.get("note");
         logChanges(entity.getId(), currentUser, changesNote, entity.getArticleStatus());
-        return super.addOrUpdate(entity, params);
+        return entity;
     }
 
     public List<Comment> getAllCommentsByArticleId(int articleId) throws ResourceNotFoundException, AuthorizationException {
