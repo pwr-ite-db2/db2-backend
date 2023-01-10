@@ -9,6 +9,7 @@ import com.example.databasedemo2.entitymanagement.views.ArticleInEditView;
 import com.example.databasedemo2.entitymanagement.views.ArticleInMakingView;
 import com.example.databasedemo2.entitymanagement.views.ArticleWaitingForEditView;
 import com.example.databasedemo2.exceptions.custom.AuthorizationException;
+import com.example.databasedemo2.frontendcommunication.customjson.AdminPaneResponse;
 import com.example.databasedemo2.frontendcommunication.customjson.EditorPaneResponse;
 import com.example.databasedemo2.security.UserAuthenticationInfoImpl;
 import jakarta.persistence.EntityNotFoundException;
@@ -58,17 +59,18 @@ public class UserService extends BaseService <User, Integer> implements UserDeta
     public List<?> getWorkingPane() throws AuthorizationException {
         User currentUser = userInfo.getAuthenticationInfo();
         return switch (currentUser.getRole().getName()) {
-            case "AUTOR" -> getAuthorPane(currentUser.getId());
+            case "AUTOR" -> getArticlesInMakingByUser(currentUser.getId());
             case "REDAKTOR" -> List.of(getEditorPane(currentUser.getId()));
+            case "ADMIN" -> List.of(getAdminPane());
             default -> throw new AuthorizationException();
         };
     }
 
-    private List<ArticleInMakingView> getAuthorPane(int userId) {
+    private List<ArticleInMakingView> getArticlesInMakingByUser(int userId) {
         return inMakingViewRepository.findAllByUserId(userId);
     }
 
-    private List<ArticleInEditView> getArticlesInEditByCurrentUser(int userId) {
+    private List<ArticleInEditView> getArticlesInEditByUser(int userId) {
         return inEditViewRepository.findAllByUserId(userId);
     }
 
@@ -77,7 +79,11 @@ public class UserService extends BaseService <User, Integer> implements UserDeta
     }
 
     private EditorPaneResponse getEditorPane(int userId) {
-        return new EditorPaneResponse(getArticlesInEditByCurrentUser(userId), getArticlesWaitingForEdit());
+        return new EditorPaneResponse(getArticlesInEditByUser(userId), getArticlesWaitingForEdit());
+    }
+
+    private AdminPaneResponse getAdminPane() {
+        return new AdminPaneResponse(inMakingViewRepository.findAll(), waitingForEditViewRepository.findAll(), inEditViewRepository.findAll());
     }
 
     public User getCurrentUserInfo() {
