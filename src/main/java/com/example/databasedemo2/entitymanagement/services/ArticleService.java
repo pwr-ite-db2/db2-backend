@@ -23,16 +23,18 @@ public class ArticleService extends BaseService<Article, Integer> {
     private final ArticleStatusService articleStatusService;
 
     private final ChangeService changeService;
+    private final TagService tagService;
 
     @Autowired
     public ArticleService(ArticleRepository repository, MainPageViewRepository mainPageViewRepository,
                           UserAuthenticationInfoImpl userInfo, ArticleStatusService articleStatusService,
-                          ChangeService changeService) {
+                          ChangeService changeService, TagService tagService) {
         super(repository);
         this.mainPageViewRepository = mainPageViewRepository;
         this.userInfo = userInfo;
         this.articleStatusService = articleStatusService;
         this.changeService = changeService;
+        this.tagService = tagService;
     }
 
     public List<MainPageView> getMainPageContent(String numOfDays) {
