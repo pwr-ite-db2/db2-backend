@@ -2,12 +2,10 @@ package com.example.databasedemo2.frontendcommunication.controllers;
 
 import com.example.databasedemo2.entitymanagement.entities.User;
 import com.example.databasedemo2.entitymanagement.services.UserService;
-import com.example.databasedemo2.entitymanagement.views.ArticleInMakingView;
-import com.example.databasedemo2.frontendcommunication.customjson.EditorPaneResponse;
 import com.example.databasedemo2.security.anotations.isAdmin;
-import com.example.databasedemo2.security.anotations.isAuthor;
-import com.example.databasedemo2.security.anotations.isEditor;
+import com.example.databasedemo2.security.anotations.isEmployee;
 import com.example.databasedemo2.security.anotations.isLoggedIn;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,16 +18,10 @@ import java.util.Map;
 public class UserController {
     private final UserService userService;
 
-    @isAuthor
-    @GetMapping("/author-working-pane")
-    public List<ArticleInMakingView> getAuthorPane() {
-        return userService.getAuthorPane();
-    }
-
-    @isEditor
-    @GetMapping("/editor-working-pane")
-    public EditorPaneResponse getEditorPane() {
-        return userService.getEditorPane();
+    @isEmployee
+    @GetMapping("/current/working-pane")
+    public List<?> getWorkingPane() {
+        return userService.getWorkingPane();
     }
 
     @isAdmin
@@ -39,12 +31,24 @@ public class UserController {
     }
 
     @isLoggedIn
+    @PutMapping("/current")
+    public User updateCurrentUserInfo(@Valid @RequestBody User user, @RequestParam(required = false) Map<String, String> params) {
+        return userService.updateCurrentUserInfo(user, params);
+    }
+
+    @isAdmin
     @PutMapping
-    public User updateUser(@RequestBody User user, @RequestParam(required = false) Map<String, String> params) {
-        return userService.update(user, params);
+    public User updateUser(@Valid @RequestBody User user, @RequestParam(required = false) Map<String, String> params) {
+        return userService.update(user, params, true);
     }
 
     @isLoggedIn
+    @GetMapping("/current")
+    public User getCurrentUserInfo() {
+        return userService.getCurrentUserInfo();
+    }
+
+    @isAdmin
     @GetMapping("/{id}")
     public User getUserById(@PathVariable("id") int userId) {
         return userService.getById(userId);

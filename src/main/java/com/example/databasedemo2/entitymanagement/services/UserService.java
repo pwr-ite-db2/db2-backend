@@ -8,6 +8,7 @@ import com.example.databasedemo2.entitymanagement.repositories.readonly.Articles
 import com.example.databasedemo2.entitymanagement.views.ArticleInEditView;
 import com.example.databasedemo2.entitymanagement.views.ArticleInMakingView;
 import com.example.databasedemo2.entitymanagement.views.ArticleWaitingForEditView;
+import com.example.databasedemo2.exceptions.custom.AuthorizationException;
 import com.example.databasedemo2.frontendcommunication.customjson.EditorPaneResponse;
 import com.example.databasedemo2.security.UserAuthenticationInfoImpl;
 import jakarta.persistence.EntityNotFoundException;
@@ -54,22 +55,33 @@ public class UserService extends BaseService <User, Integer> implements UserDeta
         return ((UserRepository) repository).existsByEmail(email);
     }
 
-    public List<ArticleInMakingView> getAuthorPane() {
+    public List<?> getWorkingPane() throws AuthorizationException {
         User currentUser = userInfo.getAuthenticationInfo();
-        return inMakingViewRepository.findAllByUserId(currentUser.getId());
+        return switch (currentUser.getRole().getName()) {
+            case "AUTOR" -> getAuthorPane(currentUser.getId());
+            case "REDAKTOR" -> List.of(getEditorPane(currentUser.getId()));
+            default -> throw new AuthorizationException();
+        };
     }
 
-    private List<ArticleInEditView> getArticlesInEditByCurrentUser() {
-        User currentUser = userInfo.getAuthenticationInfo();
-        return inEditViewRepository.findAllByUserId(currentUser.getId());
+    private List<ArticleInMakingView> getAuthorPane(int userId) {
+        return inMakingViewRepository.findAllByUserId(userId);
+    }
+
+    private List<ArticleInEditView> getArticlesInEditByCurrentUser(int userId) {
+        return inEditViewRepository.findAllByUserId(userId);
     }
 
     private List<ArticleWaitingForEditView> getArticlesWaitingForEdit() {
         return waitingForEditViewRepository.findAll();
     }
 
-    public EditorPaneResponse getEditorPane() {
-        return new EditorPaneResponse(getArticlesInEditByCurrentUser(), getArticlesWaitingForEdit());
+    private EditorPaneResponse getEditorPane(int userId) {
+        return new EditorPaneResponse(getArticlesInEditByCurrentUser(userId), getArticlesWaitingForEdit());
+    }
+
+    public User getCurrentUserInfo() {
+        return userInfo.getAuthenticationInfo();
     }
 
     @Override
@@ -82,13 +94,12 @@ public class UserService extends BaseService <User, Integer> implements UserDeta
         return entity.getId() == 0 ? repository.save(entity) : null;
     }
 
-    public User update(User entity, Map<String, String> params) {
+    public User update(User entity, Map<String, String> params, boolean isAdmin) throws AuthorizationException {
         // to create new User use add method
         if (entity.getId() == 0)
             return null;
 
         User currentUser = userInfo.getAuthenticationInfo();
-        boolean isAdmin = userInfo.isAdmin();
 
         // can't change these fields unless you are an admin
         if (!isAdmin) {
@@ -104,5 +115,15 @@ public class UserService extends BaseService <User, Integer> implements UserDeta
 
         entity.setUpdatedAt(new Date());
         return super.addOrUpdate(entity, params);
+    }
+
+    public User updateCurrentUserInfo(User user, Map<String, String> params) throws AuthorizationException {
+        User currentUser = userInfo.getAuthenticationInfo();
+
+        // validate user
+        if (currentUser.getId() != user.getId())
+            throw new AuthorizationException();
+
+        return update(user, params, false);
     }
 }

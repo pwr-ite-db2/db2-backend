@@ -1,6 +1,6 @@
 package com.example.databasedemo2.security.anotations;
 
-import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -9,6 +9,6 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-@PermitAll
+@RolesAllowed({"ADMIN","AUTOR","REDAKTOR","CZYTELNIK"})
 public @interface isLoggedIn {
 }
