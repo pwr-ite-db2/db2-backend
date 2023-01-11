@@ -43,8 +43,6 @@ public class ArticleService extends BaseService<Article, Integer> {
         return getMainPageContentFromLastDays(Integer.parseInt(numOfDays));
     }
 
-    // optional for future use
-    @SuppressWarnings("SameParameterValue")
     private List<MainPageView> getMainPageContentFromLastDays(int numOfDays) {
         long daysInMillis = 1000L * 60 * 60 * 24 * numOfDays;
         System.out.println(new Date(System.currentTimeMillis() - daysInMillis));
@@ -166,9 +164,8 @@ public class ArticleService extends BaseService<Article, Integer> {
             }
 
             // new article with new tags -> persist article entity first
-            if (entity.getChapters() != null) {
+            if (entity.getTags().stream().anyMatch(tag -> tag.getId() == 0)) {
                 List<Chapter> chaptersCopy = null;
-
 
                 if (entity.getChapters() != null) {
                     chaptersCopy = new LinkedList<>(entity.getChapters());
@@ -190,8 +187,16 @@ public class ArticleService extends BaseService<Article, Integer> {
                 entity.setComments(comments);
             }
 
-            if (entity.getChapters() == null)
-                entity.setChapters(Collections.emptyList());
+            List<Chapter> chaptersCopy = Collections.emptyList();
+
+            if (entity.getChapters() != null)
+                chaptersCopy = new LinkedList<>(entity.getChapters());
+
+            // delete all chapters and flush the changes
+            entity.getChapters().clear();
+            entity = repository.saveAndFlush(entity);
+
+            entity.getChapters().addAll(chaptersCopy);
         }
 
         if (entity.getChapters() != null) {
