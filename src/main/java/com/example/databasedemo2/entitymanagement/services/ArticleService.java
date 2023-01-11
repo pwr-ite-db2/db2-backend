@@ -133,6 +133,7 @@ public class ArticleService extends BaseService<Article, Integer> {
         return repository.save(article);
     }
 
+    // handles article changes
     @Override
     public Article addOrUpdate(Article entity, Map<String, String> params) throws EntityNotFoundException {
         // get user making changes to the article
@@ -142,7 +143,7 @@ public class ArticleService extends BaseService<Article, Integer> {
         Set<Tag> tagsDb = new HashSet<>(tagService.getAll(null));
         Map<String, Tag> nameToTagMap = tagsDb.stream().collect(Collectors.toMap(Tag::getName, tag -> tag));
 
-        // Map tags and update tags
+        // Map and update tags
         Set<Tag> tagsPassedEntity = entity.getTags()
                 .stream()
                 .map(tag -> nameToTagMap.getOrDefault(tag.getName(), Tag.builder().name(tag.getName()).build())).
