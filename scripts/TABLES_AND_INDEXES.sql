@@ -1,5 +1,5 @@
-DROP TABLE article_statuses, articles, categories, changes_history, chapters,
-    comments, roles, styles, tag_to_articles, tags, users CASCADE;
+-- DROP TABLE article_statuses, articles, categories, changes_history, chapters,
+--    comments, roles, styles, tag_to_articles, tags, users CASCADE;
 
 -- auto-generated
 create table if not exists styles

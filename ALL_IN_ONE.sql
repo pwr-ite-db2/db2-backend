@@ -1,5 +1,9 @@
-DROP TABLE article_statuses, articles, categories, changes_history, chapters,
-    comments, roles, styles, tag_to_articles, tags, users CASCADE;
+---------------------------------------------------------------------------
+--                      create tables and indexes
+---------------------------------------------------------------------------
+
+-- DROP TABLE article_statuses, articles, categories, changes_history, chapters,
+--     comments, roles, styles, tag_to_articles, tags, users CASCADE;
 
 -- auto-generated
 create table if not exists styles
@@ -170,10 +174,13 @@ create unique index if not exists chapters_article_id_order
     on chapters (article_id, order_num);
 
 
-DROP VIEW main_page_view, articles_in_making_view, articles_waiting_for_edit_view, articles_in_edit_view, emp_view;
+---------------------------------------------------------------------------
+--                              create views
+---------------------------------------------------------------------------
+-- DROP VIEW main_page_view, articles_in_making_view, articles_waiting_for_edit_view, articles_in_edit_view;
 
 CREATE OR REPLACE VIEW main_page_view AS
-SELECT a.id AS article_id, a.title, a.view_count, c.name as category_name, u.name as author, ch.date
+SELECT DISTINCT ON (a.id) a.id AS article_id, a.title, a.view_count, c.name as category_name, u.name as author, ch.date
 FROM articles a
 JOIN categories c ON a.category_id = c.id
 JOIN users u ON a.user_id = u.id
@@ -182,25 +189,21 @@ WHERE
     a.status_id = (SELECT a_s.id
                      FROM article_statuses a_s
                      WHERE name = 'OPUBLIKOWANY')
-    AND a.status_id = ch.status_id;
-
-
-CREATE OR REPLACE VIEW emp_view AS
-SELECT users.name name_a , roles.name name_b
-FROM users
-INNER JOIN roles on users.role_id = roles.id;
+    AND a.status_id = ch.status_id
+ORDER BY a.id, ch.date DESC;
 
 
 CREATE OR REPLACE VIEW articles_in_edit_view AS
-SELECT DISTINCT a.id AS article_id, a.title, u.id as user_id, u.name as editor
+SELECT DISTINCT ON (a.id) a.id AS article_id, a.title, u.id as user_id, u.name as editor, c_h.id
 FROM articles a
 JOIN changes_history c_h ON a.id = c_h.article_id
 JOIN users u ON c_h.user_id = u.id
 WHERE
     a.status_id = (SELECT a_s.id
                    FROM article_statuses a_s
-                   WHERE a_s.name = 'REDAGOWANY');
-
+                   WHERE a_s.name = 'REDAGOWANY')
+    AND a.status_id = c_h.status_id
+ORDER BY a.id, c_h.date DESC;
 
 
 CREATE OR REPLACE VIEW articles_waiting_for_edit_view AS
@@ -213,7 +216,6 @@ WHERE
                    WHERE a_s.name = 'OCZEKUJĄCY NA REDAKCJĘ');
 
 
-
 CREATE OR REPLACE VIEW articles_in_making_view AS
 SELECT DISTINCT a.id AS article_id, a.title, u.id as user_id, u.name as author
 FROM articles a
@@ -223,48 +225,127 @@ WHERE a.status_id = (SELECT a_s.id
                     WHERE a_s.name = 'UTWORZONY');
 
 
-WITH temp_author AS (
-    SELECT a.id AS article_id, a.title, u.name AS author
-    FROM changes_history ch
-    JOIN users u ON ch.user_id = u.id
-    JOIN articles a ON ch.article_id = a.id
-    WHERE a.status_id =(
-        SELECT id
-        FROM article_statuses a_s
-        WHERE a_s.name = 'OPUBLIKOWANY'
-        ) AND
-        u.role_id = (
-        SELECT id
-        FROM roles r
-        WHERE  name = 'AUTOR'
-        )
-        GROUP BY a.id, a.title, u.name
-), temp_editor AS (
-    SELECT a.id AS article_id, u.name AS editor
-    FROM changes_history ch
-    JOIN users u ON ch.user_id = u.id
-    JOIN articles a ON ch.article_id = a.id
-    WHERE a.status_id =(
-        SELECT id
-        FROM article_statuses a_s
-        WHERE a_s.name = 'OPUBLIKOWANY'
-        ) AND
-        a.status_id = ch.status_id AND
-        u.role_id = (
-        SELECT id
-        FROM roles r
-        WHERE  name = 'REDAKTOR'
-        )
-)
-SELECT title, author, editor
-FROM temp_author t_a
-JOIN temp_editor t_e ON t_a.article_id = t_e.article_id;
+---------------------------------------------------------------------------
+--                  create db functions and procedures
+---------------------------------------------------------------------------
+
+create or replace procedure zmien_role(id_uzytkownika integer, id_roli integer)
+language sql
+as $$
+	update users
+		set role_id = id_roli where id = id_uzytkownika;
+	$$;
+
+create or replace function wyszukaj_artykul_kategoria(kategoria varchar(30)) returns table(title varchar(200))
+language sql
+as $$
+	select articles.title from articles inner join categories
+		on articles.category_id  = categories.id where categories.name like kategoria;
+$$;
+
+create or replace function wyszukaj_artykul_tytul(tytul varchar(200)) returns table(title varchar(200))
+language sql
+as $$
+	select articles.title from articles where title like tytul;
+$$;
+
+create or replace procedure dodaj_pracownika(id_rola smallint, mail varchar(40),imie varchar(30), haslo varchar(255))
+language sql
+as $$
+	insert into users(id, created_at, updated_at, role_id, email, name, password)
+	values(default, now(), now(), id_rola, mail, imie, haslo);
+	$$;
+
+create or replace procedure usun_pracownika(id_uzytkownika integer)
+language sql
+as $$
+	delete from users where id = id_uzytkownika;
+	$$;
+
+create or replace function wyszukaj_artykul_tag(tag varchar(30)) returns table (title varchar(200))
+language sql
+as $$
+	select articles.title  from articles inner join tag_to_articles on articles.id = tag_to_articles.article_id inner join
+	tags on tag_to_articles.tag_id = tags.id where tags.name like tag;
+	$$;
+
+create or replace procedure zarejestruj_czytelnika(imie varchar(30), mail varchar(40), haslo varchar(255))
+language sql
+as $$
+	insert into users(id, created_at, updated_at, role_id, email, name, password)
+	values (default, now(), now(), 4, mail, imie, haslo);
+$$;
+
+create or replace procedure zamiesc_komentarz(id_artykulu integer, tresc varchar(700), uzytkownik integer)
+language sql
+as $$
+	insert into comments(id, created_at, article_id, user_id, text)
+	values(default, now(), id_artykulu, uzytkownik, tresc);
+$$;
+
+create or replace procedure odpowiedz_na_komentarz(tresc varchar(700), uzytkownik integer, id_komentarza integer)
+language sql
+as $$
+	insert into comments(id, created_at, article_id,comment_id, user_id, text)
+	values(default, now(), (select article_id from comments where id = id_komentarza), id_komentarza, uzytkownik, tresc);
+$$;
+
+create or replace procedure edytuj_dane(uzytkownik integer, imie varchar(30), mail varchar(40), haslo varchar(255))
+language sql
+as $$
+	update users
+		set updated_at = now(),
+			email = mail,
+			name = imie,
+			password = haslo
+	where id = uzytkownik;
+$$;
+
+---------------------------------------------------------------------------
+--                          create triggers
+---------------------------------------------------------------------------
+
+-- DROP TRIGGER change_article_status_on_insert ON changes_history CASCADE;
+-- DROP FUNCTION change_status_trigger();
+
+-----------------------------------------------------------------------------------------
+--              trigger, which updates article status in articles table,
+--              everytime the status is changed in the changes_history table
+-----------------------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION change_status_trigger()
+    RETURNS TRIGGER
+    LANGUAGE plpgsql
+AS $$
+DECLARE
+    article_status_before_change integer;
+BEGIN
+    SELECT a.status_id
+    INTO article_status_before_change
+    FROM articles a
+    WHERE a.id = new.article_id;
+
+    IF new.status_id != article_status_before_change THEN
+        UPDATE articles
+        SET status_id = new.status_id
+        WHERE id = new.article_id;
+    END IF;
+
+    RETURN new;
+END
+$$;
+
+
+CREATE OR REPLACE TRIGGER change_article_status_on_insert
+    AFTER INSERT
+    ON changes_history
+    FOR EACH ROW
+        EXECUTE PROCEDURE change_status_trigger();
 
 
 ---------------------------------------------------------------------------
 --                        create roles in the db
 ---------------------------------------------------------------------------
-DROP ROLE administrator, employee, reader;
+-- DROP ROLE administrator, employee, reader;
 
 -- create admin role
 -- not the same as superuser
@@ -352,115 +433,9 @@ GRANT SELECT ON articles_waiting_for_edit_view TO employee;
 GRANT SELECT ON main_page_view TO employee, reader;
 
 
-
-create or replace procedure zmien_role(id_uzytkownika integer, id_roli integer)
-language sql
-as $$
-	update users
-		set role_id = id_roli where id = id_uzytkownika;
-	$$;
-
-create or replace function wyszukaj_artykul_kategoria(kategoria varchar(30)) returns table(title varchar(200))
-language sql
-as $$
-	select articles.title from articles inner join categories
-		on articles.category_id  = categories.id where categories.name like kategoria;
-$$;
-
-create or replace function wyszukaj_artykul_tytul(tytul varchar(200)) returns table(title varchar(200))
-language sql
-as $$
-	select articles.title from articles where title like tytul;
-$$;
-
-create or replace procedure dodaj_pracownika(id_rola smallint, mail varchar(40),imie varchar(30), haslo varchar(255))
-language sql
-as $$
-	insert into users(id, created_at, updated_at, role_id, email, name, password)
-	values(default, now(), now(), id_rola, mail, imie, haslo);
-	$$;
-
-create or replace procedure usun_pracownika(id_uzytkownika integer)
-language sql
-as $$
-	delete from users where id = id_uzytkownika;
-	$$;
-
-create or replace function wyszukaj_artykul_tag(tag varchar(30)) returns table (title varchar(200))
-language sql
-as $$
-	select articles.title  from articles inner join tag_to_articles on articles.id = tag_to_articles.article_id inner join
-	tags on tag_to_articles.tag_id = tags.id where tags.name like tag;
-	$$;
-
-create or replace procedure zarejestruj_czytelnika(imie varchar(30), mail varchar(40), haslo varchar(255))
-language sql
-as $$
-	insert into users(id, created_at, updated_at, role_id, email, name, password)
-	values (default, now(), now(), 4, mail, imie, haslo);
-$$;
-
-create or replace procedure zamiesc_komentarz(id_artykulu integer, tresc varchar(700), uzytkownik integer)
-language sql
-as $$
-	insert into comments(id, created_at, article_id, user_id, text)
-	values(default, now(), id_artykulu, uzytkownik, tresc);
-$$;
-
-create or replace procedure odpowiedz_na_komentarz(tresc varchar(700), uzytkownik integer, id_komentarza integer)
-language sql
-as $$
-	insert into comments(id, created_at, article_id,comment_id, user_id, text)
-	values(default, now(), (select article_id from comments where id = id_komentarza), id_komentarza, uzytkownik, tresc);
-$$;
-
-create or replace procedure edytuj_dane(uzytkownik integer, imie varchar(30), mail varchar(40), haslo varchar(255))
-language sql
-as $$
-	update users
-		set updated_at = now(),
-			email = mail,
-			name = imie,
-			password = haslo
-	where id = uzytkownik;
-$$;
-
-
-DROP TRIGGER change_article_status_on_insert ON changes_history CASCADE;
-DROP FUNCTION change_status_trigger();
-
------------------------------------------------------------------------------------------
---              trigger, which updates article status in articles table,
---              everytime the status is changed in the changes_history table
------------------------------------------------------------------------------------------
-CREATE FUNCTION change_status_trigger()
-    RETURNS TRIGGER
-    LANGUAGE plpgsql
-AS $$
-DECLARE
-    article_status_before_change integer;
-BEGIN
-    SELECT a.status_id
-    INTO article_status_before_change
-    FROM articles a
-    WHERE a.id = new.article_id;
-
-    IF new.status_id != article_status_before_change THEN
-        UPDATE articles
-        SET status_id = new.status_id
-        WHERE id = new.article_id;
-    END IF;
-
-    RETURN new;
-END
-$$;
-
-
-CREATE TRIGGER change_article_status_on_insert
-    AFTER INSERT
-    ON changes_history
-    FOR EACH ROW
-        EXECUTE PROCEDURE change_status_trigger();
+---------------------------------------------------------------------------
+--                             seed db
+---------------------------------------------------------------------------
 
   -- clear all tables
   TRUNCATE article_statuses, articles, categories, changes_history, chapters, comments, roles, styles, tag_to_articles, tags, users cascade;
@@ -510,18 +485,19 @@ CREATE TRIGGER change_article_status_on_insert
   INSERT INTO tags (id, name) VALUES (DEFAULT, 'naukowcy');-- id = 11
 
   -- userzy
+  -- haslo ustawione na haslo123 ($2a$10$QhJkBkuwENoNmtHVhdi0OuFeViosVYm.eRP7WqhbeAjW7rTUNB6Ve)
   -- id = 1 autor
-  INSERT INTO users (id, created_at, updated_at, role_id, email, name, password) VALUES (DEFAULT, to_timestamp(1669891101), to_timestamp(1669891101), 1, 'jan.kowalski@gmail.com', 'Jan Kowalski', 'J5o9s8CgJ9oLzFYaQjEAtufpo09e3wfobEezVLPg4d1VVsxVAz700sgmvLmU8FHO8z5NkvvRkgpCLrrxh0M3ADxdXb9rDtZaafXr');
+  INSERT INTO users (id, created_at, updated_at, role_id, email, name, password) VALUES (DEFAULT, to_timestamp(1669891101), to_timestamp(1669891101), 1, 'jan.kowalski@gmail.com', 'Jan Kowalski', '$2a$10$QhJkBkuwENoNmtHVhdi0OuFeViosVYm.eRP7WqhbeAjW7rTUNB6Ve');
   -- id = 2 autor
-  INSERT INTO users (id, created_at, updated_at, role_id, email, name, password) VALUES (DEFAULT, to_timestamp(1664786293), to_timestamp(1667468293), 1, 'monika.ciechowicz@gmail.com', 'Monika Ciechowicz', '3Y4WQSt5C79kxVCpby8duJjJLsDSWGK5Qws8F2wCmAUJSvHfu0eoJ0YfDnUUZx1lrVkdEjwIc4ZsL3bw2tISI7l1bxVt9Zw5srJS');
+  INSERT INTO users (id, created_at, updated_at, role_id, email, name, password) VALUES (DEFAULT, to_timestamp(1664786293), to_timestamp(1667468293), 1, 'monika.ciechowicz@gmail.com', 'Monika Ciechowicz', '$2a$10$QhJkBkuwENoNmtHVhdi0OuFeViosVYm.eRP7WqhbeAjW7rTUNB6Ve');
   -- id = 3 redaktor
-  INSERT INTO users (id, created_at, updated_at, role_id, email, name, password) VALUES (DEFAULT, to_timestamp(1659515893), to_timestamp(1659947893), 2, 'tomasz.pies@gmail.com', 'Tomasz Pies', 'EGEhpFhIjaUGBxoxolYQLQYec0S9I9e18I46G9s2oOO945eJVBpvPi4oxpl14n4Z96ROikQtb2MOa78ybQHuh1B5WnqyFOVZcyl5');
+  INSERT INTO users (id, created_at, updated_at, role_id, email, name, password) VALUES (DEFAULT, to_timestamp(1659515893), to_timestamp(1659947893), 2, 'tomasz.pies@gmail.com', 'Tomasz Pies', '$2a$10$QhJkBkuwENoNmtHVhdi0OuFeViosVYm.eRP7WqhbeAjW7rTUNB6Ve');
   -- id = 4 admin
-  INSERT INTO users (id, created_at, updated_at, role_id, email, name, password) VALUES (DEFAULT, to_timestamp(1659435893), to_timestamp(1659847893), 3, 'malgorzata.mrowka@gmail.com', 'Małgorzata Mrówka', 'KmhOZmZSCfCre8CE3JT3ltnwmqKJ0xlcoSHGp5hLol5MNt1zt9bvepuosWxBWdJEuqVkcCDU7bqoqBm4lEti4w4Wqfjy777xWoSi');
+  INSERT INTO users (id, created_at, updated_at, role_id, email, name, password) VALUES (DEFAULT, to_timestamp(1659435893), to_timestamp(1659847893), 3, 'malgorzata.mrowka@gmail.com', 'Małgorzata Mrówka', '$2a$10$QhJkBkuwENoNmtHVhdi0OuFeViosVYm.eRP7WqhbeAjW7rTUNB6Ve');
   -- id - 5 czytelnik
-  INSERT INTO users (id, created_at, updated_at, role_id, email, name, password) VALUES (DEFAULT, to_timestamp(1659435893), to_timestamp(1659847893), 4, 'krzysztof.tasak@gmail.com', 'Krzychu569', 'UAlA1leO76HnXQeoga1Dv2GEEBajwwM9YhHoqaHHpKEOgcfaUTkKRfFCXTV0UXEbwh66soUUNEqung3J53r1EQpHlW9ed96nu8bT');
+  INSERT INTO users (id, created_at, updated_at, role_id, email, name, password) VALUES (DEFAULT, to_timestamp(1659435893), to_timestamp(1659847893), 4, 'krzysztof.tasak@gmail.com', 'Krzychu569', '$2a$10$QhJkBkuwENoNmtHVhdi0OuFeViosVYm.eRP7WqhbeAjW7rTUNB6Ve');
   -- id - 6 czytelnik
-  INSERT INTO users (id, created_at, updated_at, role_id, email, name, password) VALUES (DEFAULT, to_timestamp(1659435893), to_timestamp(1659847893), 4, 'joanna.zaba@gmail.com', 'Aśka10', 'o5DIey1LYuURB0nNaY5XAWWdI6D5uFVPgCb8u7UZRt5dG7lwR81eqGwZLQzEphKBGonNrDduISKTZDuXH2Mz6kUA1CC5ctPXixAq');
+  INSERT INTO users (id, created_at, updated_at, role_id, email, name, password) VALUES (DEFAULT, to_timestamp(1659435893), to_timestamp(1659847893), 4, 'joanna.zaba@gmail.com', 'Aśka10', '$2a$10$QhJkBkuwENoNmtHVhdi0OuFeViosVYm.eRP7WqhbeAjW7rTUNB6Ve');
 
   -- style
   INSERT INTO styles (id, layout, text_size, imp_text_html_style)VALUES (DEFAULT, '#a99cff', 14, 'bold');       -- id = 1
