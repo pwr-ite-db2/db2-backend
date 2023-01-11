@@ -10,7 +10,7 @@ public class RequestFilterService <T, ID> {
     private final BaseRepository<T, ID> repository;
 
     public List<T> findAll(Map<String, String> params) {
-        if (params.isEmpty())
+        if (params == null || params.isEmpty())
             return repository.findAll();
 
         Set<T> resultSet = new HashSet<>();

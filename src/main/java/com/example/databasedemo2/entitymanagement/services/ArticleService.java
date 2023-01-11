@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ArticleService extends BaseService<Article, Integer> {
@@ -139,6 +140,18 @@ public class ArticleService extends BaseService<Article, Integer> {
         // get user making changes to the article
         User currentUser = userInfo.getAuthenticationInfo();
 
+        // Get all tags and create a new map
+        Set<Tag> tagsDb = new HashSet<>(tagService.getAll(null));
+        Map<String, Tag> nameToTagMap = tagsDb.stream().collect(Collectors.toMap(Tag::getName, tag -> tag));
+
+        // Map tags and update tags
+        Set<Tag> tagsPassedEntity = entity.getTags()
+                .stream()
+                .map(tag -> nameToTagMap.getOrDefault(tag.getName(), Tag.builder().name(tag.getName()).build())).
+                collect(Collectors.toSet());
+
+        entity.setTags(tagsPassedEntity);
+
         // new article
         if (entity.getId() == 0) {
             // set author as current user
@@ -153,10 +166,10 @@ public class ArticleService extends BaseService<Article, Integer> {
             }
 
             // new article with new tags -> persist article entity first
-            if (entity.getTags().stream().anyMatch(tag -> tag.getId() == 0)) {
+            if (entity.getChapters() != null) {
                 List<Chapter> chaptersCopy = null;
 
-                // new article with chapters
+
                 if (entity.getChapters() != null) {
                     chaptersCopy = new LinkedList<>(entity.getChapters());
                     entity.setChapters(null);
