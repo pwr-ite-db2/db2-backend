@@ -1,6 +1,8 @@
 package com.example.databasedemo2.entitymanagement.services;
 
+import com.example.databasedemo2.entitymanagement.entities.Comment;
 import com.example.databasedemo2.entitymanagement.entities.User;
+import com.example.databasedemo2.entitymanagement.repositories.CommentRepository;
 import com.example.databasedemo2.entitymanagement.repositories.UserRepository;
 import com.example.databasedemo2.entitymanagement.repositories.readonly.ArticleWaitingForEditViewRepository;
 import com.example.databasedemo2.entitymanagement.repositories.readonly.ArticlesInEditViewRepository;
@@ -10,6 +12,7 @@ import com.example.databasedemo2.entitymanagement.views.ArticleInMakingView;
 import com.example.databasedemo2.entitymanagement.views.ArticleWaitingForEditView;
 import com.example.databasedemo2.exceptions.custom.AuthorizationException;
 import com.example.databasedemo2.frontendcommunication.customjson.AdminPaneResponse;
+import com.example.databasedemo2.frontendcommunication.customjson.dtolayer.CommentDTO;
 import com.example.databasedemo2.frontendcommunication.customjson.EditorPaneResponse;
 import com.example.databasedemo2.security.UserAuthenticationInfoImpl;
 import jakarta.persistence.EntityNotFoundException;
@@ -24,6 +27,7 @@ import org.springframework.stereotype.Service;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService extends BaseService <User, Integer> implements UserDetailsService {
@@ -32,12 +36,13 @@ public class UserService extends BaseService <User, Integer> implements UserDeta
     private final ArticleWaitingForEditViewRepository waitingForEditViewRepository;
     private final UserAuthenticationInfoImpl userInfo;
     private final PasswordEncoder passwordEncoder;
+    private final CommentRepository commentRepository;
 
     @Autowired
     public UserService(UserRepository repository, ArticlesInEditViewRepository inEditViewRepository,
                        ArticlesInMakingViewRepository inMakingViewRepository, UserAuthenticationInfoImpl userInfo,
                        ArticleWaitingForEditViewRepository waitingForEditViewRepository,
-                       @Lazy PasswordEncoder passwordEncoder) {
+                       @Lazy PasswordEncoder passwordEncoder, CommentRepository commentRepository) {
 
         super(repository);
         this.inEditViewRepository = inEditViewRepository;
@@ -45,6 +50,7 @@ public class UserService extends BaseService <User, Integer> implements UserDeta
         this.userInfo = userInfo;
         this.waitingForEditViewRepository = waitingForEditViewRepository;
         this.passwordEncoder = passwordEncoder;
+        this.commentRepository = commentRepository;
     }
 
     @Override
@@ -78,12 +84,20 @@ public class UserService extends BaseService <User, Integer> implements UserDeta
         return waitingForEditViewRepository.findAll();
     }
 
+    private List<CommentDTO> getFlaggedComments() {
+        List<Comment> flaggedComments = commentRepository.findAllByReported(true);
+        return flaggedComments
+                .stream()
+                .map(CommentDTO::buildFromComment)
+                .collect(Collectors.toList());
+    }
+
     private EditorPaneResponse getEditorPane(int userId) {
         return new EditorPaneResponse(getArticlesInEditByUser(userId), getArticlesWaitingForEdit());
     }
 
     private AdminPaneResponse getAdminPane() {
-        return new AdminPaneResponse(inMakingViewRepository.findAll(), waitingForEditViewRepository.findAll(), inEditViewRepository.findAll());
+        return new AdminPaneResponse(inMakingViewRepository.findAll(), waitingForEditViewRepository.findAll(), inEditViewRepository.findAll(), getFlaggedComments());
     }
 
     public User getCurrentUserInfo() {
