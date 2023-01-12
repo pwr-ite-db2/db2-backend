@@ -3,6 +3,7 @@ package com.example.databasedemo2.frontendcommunication.customjson;
 import com.example.databasedemo2.entitymanagement.views.ArticleInEditView;
 import com.example.databasedemo2.entitymanagement.views.ArticleInMakingView;
 import com.example.databasedemo2.entitymanagement.views.ArticleWaitingForEditView;
+import com.example.databasedemo2.frontendcommunication.customjson.dtolayer.CommentDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,4 +17,5 @@ public class AdminPaneResponse {
     private List<ArticleInMakingView> articlesInMaking;
     private List<ArticleWaitingForEditView> articlesWaitingForEdit;
     private List<ArticleInEditView> articlesInEdit;
+    private List<CommentDTO> flaggedComments;
 }

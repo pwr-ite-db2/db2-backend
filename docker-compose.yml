@@ -30,7 +30,8 @@ services:
     networks:
       - app-db
     ports:
-      - "443:443"
+      - "8080:8080"
+#      - "443:443"
     depends_on:
       - database
     environment:

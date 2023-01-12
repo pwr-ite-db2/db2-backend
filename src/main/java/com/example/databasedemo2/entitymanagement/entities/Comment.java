@@ -44,6 +44,9 @@ public class Comment {
     @JsonManagedReference
     private List<Comment> responses;
 
+    // default false
+    private boolean reported;
+
     @Transient
     @JsonIgnore
     @EqualsAndHashCode.Exclude

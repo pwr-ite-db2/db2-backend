@@ -255,6 +255,8 @@ public class ArticleService extends BaseService<Article, Integer> {
 
     public Comment addOrUpdateComment(int articleId, Comment comment) throws ResourceNotFoundException, AuthorizationException {
         Article article = repository.findById(articleId).orElseThrow(ResourceNotFoundException::new);
+        User currentUser = userInfo.getAuthenticationInfo();
+
 
         // check if article is published
         if ((userInfo.isAnonymousUser() || userInfo.isClient())
@@ -264,8 +266,8 @@ public class ArticleService extends BaseService<Article, Integer> {
         }
 
         if (comment.getId() == 0) {
-            User author = userInfo.getAuthenticationInfo();
-            comment.setUser(author);
+            comment.setUser(currentUser);
+            comment.setCreatedAt(new Date());
         } else {
             comment.setUpdatedAt(new Date());
         }

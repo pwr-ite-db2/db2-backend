@@ -14,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Configuration
 @RequiredArgsConstructor
 public class ApplicationConfig {
+    public static final String HOST_BASE_URL = "localhost:8080";
     private final UserService userService;
 
     @Bean
