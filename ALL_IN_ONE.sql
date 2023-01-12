@@ -91,7 +91,7 @@ create index if not exists articles_user_id
 create index if not exists articles_category_id
     on articles (category_id);
 
-create unique index if not exists articles_title
+create index if not exists articles_title
     on articles (title);
 
 create table if not exists changes_history
