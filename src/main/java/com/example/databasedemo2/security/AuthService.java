@@ -14,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.Map;
 
 @Service
 @Transactional
@@ -32,16 +33,19 @@ public class AuthService {
 
         // encode password
         newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
+        Role role;
 
         // check if user has admin privileges
-        if (userInfo.isAnonymousUser() || !userInfo.isAdmin() || newUser.getRole() == null) {
-            Role defaultRole = roleService.getDefaultRole();
-            newUser.setRole(defaultRole);
-        }
+        if (userInfo.isAnonymousUser() || !userInfo.isAdmin() || newUser.getRole() == null)
+            role = roleService.getDefaultRole();
+        else
+            role = roleService.getById(newUser.getRole().getId());
+
+        newUser.setRole(role);
 
         newUser.setCreatedAt(new Date());
         newUser = userService.add(newUser);
-        String token = jwtService.generateToken(newUser);
+        String token = jwtService.generateToken(Map.of("role", newUser.getRole().getName()), newUser);
         return new AuthResponse(token);
     }
 
@@ -51,7 +55,7 @@ public class AuthService {
                 authRequest.getPassword()));
 
         User user = (User) userService.loadUserByUsername(authRequest.getEmail());
-        String token = jwtService.generateToken(user);
+        String token = jwtService.generateToken(Map.of("role", user.getRole().getName()), user);
         return new AuthResponse(token);
     }
 }

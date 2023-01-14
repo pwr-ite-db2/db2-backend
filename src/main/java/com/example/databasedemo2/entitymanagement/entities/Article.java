@@ -30,7 +30,6 @@ public class Article {
     @NotNull(message = "Category cannot be empty!")
     private Category category;
 
-    @NotNull(message = "Title cannot be empty!")
     @Size(max = 50, message = "Article title must be less than 50 characters!")
     private String title;
 
@@ -82,4 +81,8 @@ public class Article {
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private List<Comment> comments;
+
+    @Transient
+    @JsonIgnore
+    private boolean allowStatusChange = false;
 }

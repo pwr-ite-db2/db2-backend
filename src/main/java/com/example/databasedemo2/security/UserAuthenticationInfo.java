@@ -6,4 +6,8 @@ public interface UserAuthenticationInfo <T extends UserDetails> {
     T getAuthenticationInfo();
 
     boolean isAnonymousUser();
+
+    boolean isAdmin();
+
+    boolean isClient();
 }

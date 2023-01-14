@@ -46,7 +46,7 @@ public class ArticleController {
         return articleService.readArticle(articleId);
     }
 
-    @isAdmin
+    @isEmployee
     @DeleteMapping("/{id}")
     public boolean deleteArticleById(@PathVariable("id") int articleId) {
         return articleService.deleteById(articleId);

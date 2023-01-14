@@ -21,6 +21,8 @@ public class JwtService {
     private static final String SECRET = "2A462D4A614E645267556B58703273357538782F413F4428472B4B6250655368";
     private static final long EXPIRATION_TIME_IN_MILLIS = 1000 * 60 * 60 * 6;   // 6 hours
 
+    // for future use
+    @SuppressWarnings("unused")
     public String generateToken(UserDetails userDetails) {
         return generateToken(Collections.emptyMap(), userDetails);
     }
@@ -66,7 +68,7 @@ public class JwtService {
     public boolean isValidToken(String token, UserDetails userDetails) throws JwtException {
         final String username = getUsername(token);
         return (username.equals(userDetails.getUsername())) &&
-                (!isExpired(token));
+                (!isExpired(token)) && (userDetails.isEnabled());
     }
 
     private boolean isExpired(String token) throws JwtException {

@@ -17,11 +17,17 @@ public class UserAuthenticationInfoImpl implements UserAuthenticationInfo <User>
         return SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken;
     }
 
+    @Override
     public boolean isAdmin() {
         return getAuthenticationInfo().getRole().getName().equals("ADMIN");
     }
 
+    @Override
     public boolean isClient() {
         return getAuthenticationInfo().getRole().getName().equals("CZYTELNIK");
+    }
+
+    public boolean isEditor() {
+        return getAuthenticationInfo().getRole().getName().equals("REDAKTOR");
     }
 }
