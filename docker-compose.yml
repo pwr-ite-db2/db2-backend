@@ -26,8 +26,7 @@ services:
 
   app:
     container_name: bazy-danych-server-side-app
-    build: ./
-    image: bazy-danych-server-side-app:latest
+    image: marcinlenki/bazy-danych-server-side-app:latest
     networks:
       - app-db
     ports:

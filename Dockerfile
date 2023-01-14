@@ -1,4 +1,4 @@
-FROM amazoncorretto:17.0.5
+FROM marcinlenki/bazy-danych-server-side-app:latest
 #EXPOSE 443
 EXPOSE 8080
 ARG JAR_FILE=target/*.jar
