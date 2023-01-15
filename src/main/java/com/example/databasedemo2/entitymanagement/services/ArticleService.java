@@ -235,7 +235,6 @@ public class ArticleService extends BaseService<Article, Integer> {
 
     public Article submitArticleForEditing(Article article) throws ResourceNotFoundException, AuthorizationException {
         ArticleStatus oldArticleStatus = repository.getReferenceById(article.getId()).getArticleStatus();
-        System.out.println("oldArticleStatus = " + oldArticleStatus);
         article.setArticleStatus(oldArticleStatus);
 
         if (validator.isValidForEditing(article)) {
